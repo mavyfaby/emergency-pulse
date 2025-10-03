@@ -1,4 +1,4 @@
-BIN_NAME=emergency_pulse
+BIN_NAME=pulse
 
 # 👇 Build the binary (production)
 .PHONY: build

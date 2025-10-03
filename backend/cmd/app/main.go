@@ -3,6 +3,7 @@ package main
 import (
 	"emergency-pulse/internal/app"
 	"emergency-pulse/internal/config"
+	"emergency-pulse/internal/db"
 	"emergency-pulse/internal/redis"
 
 	"log/slog"
@@ -31,7 +32,16 @@ func main() {
 	// Init logger
 	config.InitLogger()
 
-	// 3. Create the Redis Client
+	// Init the database connection
+	conn, err := db.Init()
+
+	if err != nil {
+		slog.Error("[DB] " + err.Error())
+		os.Exit(1)
+		return
+	}
+
+	// Create the Redis Client
 	redisClient, err := redis.Init(
 		config.App.RedisHost+":"+strconv.Itoa(config.App.RedisPort),
 		config.App.RedisUsername,
@@ -47,8 +57,8 @@ func main() {
 	slog.Info("[Client] Redis client initialized and connected!")
 
 	// Start application
-	go app.Start(redisClient)
-	go app.StartTCP()
+	go app.Start(conn, redisClient)
+	go app.StartTCP(conn)
 
 	// Create a channel to listen for an OS signal
 	sigterm := make(chan os.Signal, 1)

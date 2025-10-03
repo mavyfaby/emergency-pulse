@@ -31,7 +31,6 @@ class _DialogInfoState extends State<DialogInfo> {
   void initState() {
     super.initState();
     Get.find<InfoController>().load();
-    Get.find<InfoController>().checkLocationPermission();
   }
 
   @override
@@ -131,6 +130,7 @@ class _DialogInfoState extends State<DialogInfo> {
         ),
         FilledButton(
           onPressed: () async {
+            await Get.find<InfoController>().checkLocationPermission();
             await infoCtrl.save(
               nameCtrl.text,
               addressCtrl.text,

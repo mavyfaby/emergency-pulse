@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:emergency_pulse/controllers/info.controller.dart';
+import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/pages/home.dart' show PageHome;
@@ -21,6 +22,7 @@ void main() async {
   final infoCtrl = Get.put(InfoController());
   Get.put(NetworkController());
   Get.put(SettingsController());
+  Get.put(LocationController());
 
   infoCtrl.load();
 
@@ -40,12 +42,15 @@ class MyApp extends StatelessWidget {
     // Listen to location updates
     Get.find<InfoController>().listenLocationUpdates();
 
+    final settingsCtrl = Get.find<SettingsController>();
+
     return GetMaterialApp(
-      title: 'Emergency Pulse',
-      theme: ThemeData(colorScheme: MaterialTheme.lightMediumContrastScheme()),
-      darkTheme: ThemeData(
-        colorScheme: MaterialTheme.darkMediumContrastScheme(),
-      ),
+      title: 'Pulse',
+      theme: ThemeData(colorScheme: MaterialTheme.lightScheme()),
+      themeMode: settingsCtrl.isDarkMode.value
+          ? ThemeMode.dark
+          : ThemeMode.light,
+      darkTheme: ThemeData(colorScheme: MaterialTheme.darkScheme()),
       home: const PageHome(),
     );
   }

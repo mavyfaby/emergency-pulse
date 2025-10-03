@@ -27,7 +27,7 @@ class NetworkController extends GetxController {
       debugPrint('Connecting to server...');
 
       // 1. Connect to the server
-      socket = await Socket.connect('192.168.1.105', 62001);
+      socket = await Socket.connect('192.168.254.100', 62001);
 
       if (socket == null) {
         status.value = NetworkStatus.disconnected;
@@ -39,10 +39,17 @@ class NetworkController extends GetxController {
       status.value = NetworkStatus.connected;
       debugPrint('Connected to server!');
 
+      final infoCtrl = Get.find<InfoController>();
+
       // 2. Listen for incoming data
       socket!.listen(
         (List<int> event) {
-          debugPrint('Server: ${utf8.decode(event)}');
+          final message = utf8.decode(event);
+          debugPrint('Server: $message');
+
+          if (message == "ACK") {
+            infoCtrl.isSendingAlert.value = false;
+          }
         },
         onError: (error) {
           status.value = NetworkStatus.disconnected;
@@ -54,7 +61,6 @@ class NetworkController extends GetxController {
         onDone: () {
           status.value = NetworkStatus.disconnected;
           debugPrint('Connection closed');
-          showSnackbar("Connection closed");
           socket!.close();
           socket = null;
         },
@@ -90,9 +96,6 @@ class NetworkController extends GetxController {
       );
 
       socket!.add(message);
-
-      showSnackbar("Alert sent successful!");
-      debugPrint('Alert sent successfully');
     } catch (e) {
       debugPrint('Failed to send alert: $e');
     }

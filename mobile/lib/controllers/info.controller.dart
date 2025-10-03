@@ -21,6 +21,7 @@ class InfoController extends GetxController {
   final picture = Uint8List.fromList([]).obs;
   final isPictureAlreadyCompressed = false.obs;
   final isLocationListening = false.obs;
+  final isSendingAlert = false.obs;
 
   bool hasInfoFilled() {
     return name.value.isNotEmpty &&
@@ -141,6 +142,7 @@ class InfoController extends GetxController {
   void load() {
     final info = Hive.box("info");
 
+    uuid.value = info.get("uuid") ?? "";
     name.value = info.get("name") ?? "";
     address.value = info.get("address") ?? "";
     contactNo.value = info.get("contactNo") ?? "";

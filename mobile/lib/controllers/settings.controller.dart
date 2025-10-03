@@ -12,6 +12,15 @@ class SettingsController extends GetxController {
     isDarkMode.value = box.get('isDarkMode', defaultValue: false);
   }
 
+  void setDarkMode(ThemeMode theme) {
+    isDarkMode.value = theme == ThemeMode.dark;
+    Get.changeThemeMode(theme);
+
+    final box = Hive.box('settings');
+
+    box.put('isDarkMode', isDarkMode.value);
+  }
+
   void toggleTheme() {
     isDarkMode.value = !isDarkMode.value;
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
