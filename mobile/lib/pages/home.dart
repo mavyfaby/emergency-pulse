@@ -1,4 +1,5 @@
 import 'package:emergency_pulse/controllers/info.controller.dart';
+import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/pages/alerts.dart';
 import 'package:emergency_pulse/pages/map.dart';
@@ -20,6 +21,7 @@ class _PageHomeState extends State<PageHome> {
   Widget build(BuildContext context) {
     final infoCtrl = Get.find<InfoController>();
     final settingsCtrl = Get.find<SettingsController>();
+    final locationCtrl = Get.find<LocationController>();
     final pageCtrl = PageController();
 
     return Scaffold(
@@ -74,6 +76,29 @@ class _PageHomeState extends State<PageHome> {
         onPageChanged: (index) {
           selectedIndex.value = index;
         },
+      ),
+
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButton: Obx(
+        () => AnimatedScale(
+          scale: selectedIndex.value == 0 ? 0 : 1,
+          duration: const Duration(milliseconds: 300),
+          child: FloatingActionButton.extended(
+            onPressed: locationCtrl.isRefreshing.value
+                ? null
+                : () {
+                    locationCtrl.refreshKey.currentState?.show();
+                  },
+            label: Obx(
+              () => Text(
+                locationCtrl.isRefreshing.value
+                    ? "Refreshing..."
+                    : "Refresh Alerts",
+              ),
+            ),
+            icon: const Icon(Icons.refresh),
+          ),
+        ),
       ),
 
       bottomNavigationBar: Obx(

@@ -11,9 +11,32 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:http/http.dart';
+
 class NetworkController extends GetxController {
   Socket? socket;
+  Client? client;
+
   final status = NetworkStatus.disconnected.obs;
+  final ipAddress = "192.168.254.100";
+  final apiPort = 62000;
+  final tcpPort = 62001;
+
+  @override
+  void onInit() {
+    super.onInit();
+    client = Client();
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    client?.close();
+    socket?.close();
+    client = null;
+    socket = null;
+    status.value = NetworkStatus.disconnected;
+  }
 
   Future<void> connect() async {
     if (status.value == NetworkStatus.connected || socket != null) {
@@ -27,7 +50,7 @@ class NetworkController extends GetxController {
       debugPrint('Connecting to server...');
 
       // 1. Connect to the server
-      socket = await Socket.connect('192.168.254.100', 62001);
+      socket = await Socket.connect(ipAddress, tcpPort);
 
       if (socket == null) {
         status.value = NetworkStatus.disconnected;
