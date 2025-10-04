@@ -1,4 +1,5 @@
 import 'package:emergency_pulse/components/dialogs/info.dart';
+import 'package:emergency_pulse/components/error_message.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/enums/status.dart';
@@ -6,6 +7,7 @@ import 'package:emergency_pulse/enums/status.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class PageAlerts extends StatelessWidget {

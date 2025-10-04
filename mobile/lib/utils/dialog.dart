@@ -24,7 +24,7 @@ Future<void> showAlertDialog(
       title: Text(title),
       content: Text(
         message,
-        style: Get.textTheme.bodyMedium!.copyWith(letterSpacing: 0),
+        style: Get.textTheme.bodyLarge!.copyWith(letterSpacing: 0),
       ),
       actions: [
         if (cancelAction != null)

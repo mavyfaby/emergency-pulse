@@ -6,6 +6,8 @@ class AlertModel {
   final String contactNo;
   final String lat;
   final String lng;
+  final String? doneAt;
+  final bool hasImage;
   final String createdAt;
 
   AlertModel({
@@ -16,6 +18,8 @@ class AlertModel {
     required this.contactNo,
     required this.lat,
     required this.lng,
+    this.doneAt,
+    required this.hasImage,
     required this.createdAt,
   });
 
@@ -28,6 +32,8 @@ class AlertModel {
       contactNo: json['contactNo'],
       lat: json['lat'],
       lng: json['lng'],
+      doneAt: json['doneAt'],
+      hasImage: json['hasImage'],
       createdAt: json['createdAt'],
     );
   }
@@ -41,6 +47,8 @@ class AlertModel {
       'contactNo': contactNo,
       'lat': lat,
       'lng': lng,
+      'doneAt': doneAt,
+      'hasImage': hasImage,
       'createdAt': createdAt,
     };
   }

@@ -18,6 +18,7 @@ type AlertModel struct {
 	Lat       string     `db:"lat"`
 	Lng       string     `db:"lng"`
 	DoneAt    *time.Time `db:"done_at"`
+	HasImage  bool       `db:"has_image"`
 	CreatedAt time.Time  `db:"created_at"`
 }
 
@@ -29,15 +30,24 @@ func (m AlertModel) ToDTO() (*alertDTO.AlertDTO, error) {
 		return nil, err
 	}
 
-	return &alertDTO.AlertDTO{
+	alertDTO := alertDTO.AlertDTO{
 		HashID:    alertHashID,
+		UUID:      m.UUID,
 		Name:      m.Name,
 		Address:   m.Address,
 		ContactNo: m.ContactNo,
 		Lat:       m.Lat,
 		Lng:       m.Lng,
+		HasImage:  m.HasImage,
 		CreatedAt: utils.TimeToISO8601(m.CreatedAt),
-	}, nil
+	}
+
+	if m.DoneAt != nil {
+		doneAt := utils.TimeToISO8601(*m.DoneAt)
+		alertDTO.DoneAt = &doneAt
+	}
+
+	return &alertDTO, nil
 }
 
 func AlertsToDTOs(alerts []*AlertModel) ([]*alertDTO.AlertDTO, error) {

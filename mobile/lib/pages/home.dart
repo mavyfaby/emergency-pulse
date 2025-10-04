@@ -79,6 +79,7 @@ class _PageHomeState extends State<PageHome> {
       ),
 
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Obx(
         () => AnimatedScale(
           scale: selectedIndex.value == 0 ? 0 : 1,

@@ -54,7 +54,6 @@ class NetworkController extends GetxController {
 
       if (socket == null) {
         status.value = NetworkStatus.disconnected;
-        showSnackbar("Connection failed");
         debugPrint('Connection failed');
         return;
       }
@@ -72,12 +71,16 @@ class NetworkController extends GetxController {
 
           if (message == "ACK") {
             infoCtrl.isSendingAlert.value = false;
+
+            showAlertDialog(
+              "Help is on the way!",
+              "We’ve received your emergency alert. Stay calm and keep your phone close. Someone will reach you soon.",
+            );
           }
         },
         onError: (error) {
           status.value = NetworkStatus.disconnected;
           debugPrint('Connection failed: $error');
-          showSnackbar("Connection failed");
           socket!.close();
           socket = null;
         },
@@ -91,7 +94,6 @@ class NetworkController extends GetxController {
     } catch (e) {
       status.value = NetworkStatus.disconnected;
       debugPrint("Connection failed: $e");
-      showSnackbar("Connection failed");
 
       if (socket != null) {
         socket!.close();

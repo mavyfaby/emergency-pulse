@@ -121,7 +121,7 @@ class InfoController extends GetxController {
 
         final bytes = await FlutterImageCompress.compressWithList(
           await picture.readAsBytes(),
-          quality: 80,
+          quality: 75,
         );
 
         debugPrint("Picture compressed!");
@@ -141,6 +141,7 @@ class InfoController extends GetxController {
 
   void load() {
     final info = Hive.box("info");
+    Get.find<InfoController>().listenLocationUpdates();
 
     uuid.value = info.get("uuid") ?? "";
     name.value = info.get("name") ?? "";
