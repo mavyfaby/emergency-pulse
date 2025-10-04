@@ -2,7 +2,6 @@ import 'package:emergency_pulse/components/dialogs/pin.dart';
 import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/network/request.dart';
-import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
