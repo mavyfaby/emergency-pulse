@@ -30,11 +30,15 @@ class SheetAlerts extends StatelessWidget {
                         : () {
                             locationCtrl.refreshKey.currentState?.show();
                           },
-                    child: Text(
-                      locationCtrl.isRefreshing.value
-                          ? "Refreshing..."
-                          : "Refresh Alerts",
-                    ),
+                    child: locationCtrl.isRefreshing.value
+                        ? SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : const Text("Refresh Alerts"),
                   ),
                 ),
               ],
@@ -75,31 +79,35 @@ class SheetAlerts extends StatelessWidget {
             child: TabBarView(
               controller: tabController,
               children: [
-                ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  itemCount: locationCtrl.alerts
-                      .where((alert) => alert.doneAt == null)
-                      .length,
-                  itemBuilder: (context, index) {
-                    return CardAlert(
-                      alert: locationCtrl.alerts
-                          .where((alert) => alert.doneAt == null)
-                          .elementAt(index),
-                    );
-                  },
+                Obx(
+                  () => ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    itemCount: locationCtrl.alerts
+                        .where((alert) => alert.doneAt == null)
+                        .length,
+                    itemBuilder: (context, index) {
+                      return CardAlert(
+                        alert: locationCtrl.alerts
+                            .where((alert) => alert.doneAt == null)
+                            .elementAt(index),
+                      );
+                    },
+                  ),
                 ),
-                ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  itemCount: locationCtrl.alerts
-                      .where((alert) => alert.doneAt != null)
-                      .length,
-                  itemBuilder: (context, index) {
-                    return CardAlert(
-                      alert: locationCtrl.alerts
-                          .where((alert) => alert.doneAt != null)
-                          .elementAt(index),
-                    );
-                  },
+                Obx(
+                  () => ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    itemCount: locationCtrl.alerts
+                        .where((alert) => alert.doneAt != null)
+                        .length,
+                    itemBuilder: (context, index) {
+                      return CardAlert(
+                        alert: locationCtrl.alerts
+                            .where((alert) => alert.doneAt != null)
+                            .elementAt(index),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

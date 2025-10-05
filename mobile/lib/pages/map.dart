@@ -191,6 +191,8 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
           myLocationEnabled: true,
           buildingsEnabled: true,
           compassEnabled: true,
+          mapToolbarEnabled: false,
+          indoorViewEnabled: true,
           zoomControlsEnabled: false,
           myLocationButtonEnabled: true,
           trafficEnabled: true,
