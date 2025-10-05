@@ -35,7 +35,7 @@ class DialogAbout extends StatelessWidget {
           const SizedBox(height: 16),
 
           SelectableText(
-            "Pulse is your one-tap emergency app. Send alerts instantly to anyone using the app, track users in need on the built-in map, and rest assured—alerts go through even if your phone has no mobile load, as long as mobile data is on. Built with high-availability technology to ensure your alerts always get delivered. Quick, simple, and lifesaving!",
+            "Pulse is your trusted emergency alert app. Instantly reach nearby emergency responders and get help fast. Even without mobile load, your alert gets through—as long as mobile data is on. Reliable, simple, and built to save lives when it matters most.",
           ),
 
           const SizedBox(height: 16),
