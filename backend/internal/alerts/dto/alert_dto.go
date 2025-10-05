@@ -2,7 +2,7 @@ package dto
 
 type AlertDTO struct {
 	HashID    string  `json:"hashId"`
-	UUID      string  `json:"uuid"`
+	IMEI      string  `json:"imei"`
 	Name      string  `json:"name"`
 	Address   string  `json:"address"`
 	ContactNo string  `json:"contactNo"`

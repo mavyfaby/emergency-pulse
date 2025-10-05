@@ -11,7 +11,7 @@ import (
 
 type AlertModel struct {
 	ID        int32      `db:"id"`
-	UUID      string     `db:"uuid"`
+	IMEI      string     `db:"imei"`
 	Name      string     `db:"name"`
 	Address   string     `db:"address"`
 	ContactNo string     `db:"contact_no"`
@@ -32,7 +32,7 @@ func (m AlertModel) ToDTO() (*alertDTO.AlertDTO, error) {
 
 	alertDTO := alertDTO.AlertDTO{
 		HashID:    alertHashID,
-		UUID:      m.UUID,
+		IMEI:      m.IMEI,
 		Name:      m.Name,
 		Address:   m.Address,
 		ContactNo: m.ContactNo,

@@ -99,7 +99,7 @@ func handleConnection(alertRepo *repository.AlertRepository, client net.Conn) {
 
 		slog.Info(
 			"🚨 ALERT 🚨",
-			slog.String("uuid", alert.UUID),
+			slog.String("imei", alert.IMEI),
 			slog.String("name", alert.Name),
 			slog.String("address", alert.Address),
 			slog.String("contact", alert.ContactNo),

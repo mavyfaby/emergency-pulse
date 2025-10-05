@@ -2,7 +2,7 @@ package request
 
 // EmergencyAlert represents minimal CBOR payload
 type EmergencyAlert struct {
-	UUID      string `cbor:"uuid"`
+	IMEI      string `cbor:"imei"`
 	Name      string `cbor:"name"`
 	Address   string `cbor:"address"`
 	ContactNo string `cbor:"contactNo"`
