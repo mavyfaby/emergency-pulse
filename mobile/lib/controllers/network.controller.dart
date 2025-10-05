@@ -83,13 +83,13 @@ class NetworkController extends GetxController {
         onError: (error) {
           status.value = NetworkStatus.disconnected;
           debugPrint('Connection failed: $error');
-          socket!.close();
+          socket?.close();
           socket = null;
         },
         onDone: () {
           status.value = NetworkStatus.disconnected;
           debugPrint('Connection closed');
-          socket!.close();
+          socket?.close();
           socket = null;
         },
       );
@@ -135,10 +135,10 @@ class NetworkController extends GetxController {
         "Sending ${header.length} bytes of header and ${data.length} bytes of data.",
       );
 
-      socket!.add(header);
-      socket!.add(data);
+      socket?.add(header);
+      socket?.add(data);
 
-      await socket!.flush();
+      await socket?.flush();
 
       debugPrint('Alert sent successfully!');
 

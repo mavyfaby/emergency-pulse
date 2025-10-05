@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:emergency_pulse/components/dialogs/info.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
@@ -15,6 +17,11 @@ class PageAlerts extends StatelessWidget {
   Widget build(BuildContext context) {
     final infoCtrl = Get.find<InfoController>();
     final networkCtrl = Get.find<NetworkController>();
+    final timeoutInSeconds = 5;
+    final currentTimeout = timeoutInSeconds.obs;
+    final scale = 1.0.obs;
+
+    Timer? timer;
 
     return SingleChildScrollView(
       child: Padding(
@@ -148,38 +155,128 @@ class PageAlerts extends StatelessWidget {
                 SizedBox(height: 32),
 
                 PressableDough(
-                  child: SizedBox(
-                    width: 250,
-                    height: 250,
-                    child: AvatarGlow(
-                      animate:
-                          infoCtrl.hasInfoFilled() &&
-                          infoCtrl.isLocationListening.value &&
-                          networkCtrl.status.value == NetworkStatus.connected &&
-                          !infoCtrl.isSendingAlert.value,
-                      glowColor: Theme.of(context).colorScheme.primary,
-                      child: FilledButton(
-                        onPressed:
+                  child: AnimatedScale(
+                    scale: scale.value,
+                    curve: Curves.elasticInOut,
+                    duration: const Duration(milliseconds: 210),
+                    child: SizedBox(
+                      width: 250,
+                      height: 250,
+                      child: AvatarGlow(
+                        animate:
                             infoCtrl.hasInfoFilled() &&
-                                infoCtrl.isLocationListening.value &&
-                                networkCtrl.status.value ==
-                                    NetworkStatus.connected &&
-                                !infoCtrl.isSendingAlert.value
-                            ? () {
-                                infoCtrl.checkLocationPermission();
-                                networkCtrl.sendAlert();
-                                // networkCtrl.testTcpLimit();
-                              }
-                            : null,
-                        child: Text(
-                          infoCtrl.isSendingAlert.value
-                              ? "Sending..."
-                              : "Send Alert",
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.w500,
+                            infoCtrl.isLocationListening.value &&
+                            networkCtrl.status.value ==
+                                NetworkStatus.connected &&
+                            !infoCtrl.isSendingAlert.value,
+                        glowColor: currentTimeout.value == timeoutInSeconds
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                currentTimeout.value == timeoutInSeconds
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                          onPressed:
+                              infoCtrl.hasInfoFilled() &&
+                                  infoCtrl.isLocationListening.value &&
+                                  networkCtrl.status.value ==
+                                      NetworkStatus.connected &&
+                                  !infoCtrl.isSendingAlert.value
+                              ? () {
+                                  if (currentTimeout.value ==
+                                      timeoutInSeconds) {
+                                    currentTimeout.value--;
+
+                                    scale.value = 1.2;
+
+                                    timer = Timer.periodic(
+                                      Duration(seconds: 1),
+                                      (timer) {
+                                        currentTimeout.value--;
+
+                                        if (currentTimeout.value <= 0) {
+                                          timer.cancel();
+                                          scale.value = 1.0;
+                                          currentTimeout.value =
+                                              timeoutInSeconds;
+                                        }
+                                      },
+                                    );
+                                  } else {
+                                    scale.value = 1.0;
+                                    timer?.cancel();
+                                    currentTimeout.value = timeoutInSeconds;
+                                    infoCtrl.checkLocationPermission();
+                                    networkCtrl.sendAlert();
+                                  }
+                                }
+                              : null,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (!infoCtrl.isSendingAlert.value)
+                                Text(
+                                  currentTimeout.value < timeoutInSeconds
+                                      ? "Tap again to"
+                                      : "Double-tap to",
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            currentTimeout.value ==
+                                                timeoutInSeconds
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimary
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.surface,
+                                      ),
+                                ),
+
+                              Text(
+                                infoCtrl.isSendingAlert.value
+                                    ? "Sending..."
+                                    : "Send Alert",
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color:
+                                          currentTimeout.value ==
+                                              timeoutInSeconds
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onPrimary
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.surface,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
+
+                              if (currentTimeout.value < timeoutInSeconds)
+                                Text(
+                                  "Will cancel in ${currentTimeout.value} seconds",
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            currentTimeout.value ==
+                                                timeoutInSeconds
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimary
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.surface,
+                                      ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

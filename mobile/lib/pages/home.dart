@@ -1,3 +1,4 @@
+import 'package:emergency_pulse/components/dialogs/about.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
@@ -67,6 +68,13 @@ class _PageHomeState extends State<PageHome> {
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: "About app",
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              showDialog(context: context, builder: (context) => DialogAbout());
+            },
+          ),
           Obx(
             () => Switch(
               value: settingsCtrl.isDarkMode.value,

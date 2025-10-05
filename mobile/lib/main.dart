@@ -10,6 +10,7 @@ import 'package:emergency_pulse/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,10 +21,11 @@ void main() async {
   await Hive.openBox('pings');
 
   final infoCtrl = Get.put(InfoController());
+  final settingsCtrl = Get.put(SettingsController());
   Get.put(NetworkController());
-  Get.put(SettingsController());
   Get.put(LocationController());
 
+  settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
   infoCtrl.load();
 
   runApp(const MyApp());

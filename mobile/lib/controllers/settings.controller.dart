@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsController extends GetxController {
   final isDarkMode = false.obs;
   final mainScaffoldKey = GlobalKey<ScaffoldState>();
   final isTabOpen = false.obs;
 
+  PackageInfo? packageInfo;
   TabController? tabController;
   PersistentBottomSheetController? bottomSheetCtrl;
 
