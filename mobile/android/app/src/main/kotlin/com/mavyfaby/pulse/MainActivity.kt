@@ -1,4 +1,4 @@
-package me.mavyfaby.pulse
+package com.mavyfaby.pulse
 
 import io.flutter.embedding.android.FlutterActivity
 
