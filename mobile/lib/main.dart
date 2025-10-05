@@ -34,13 +34,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final networkCtrl = Get.find<NetworkController>();
+    final infoCtrl = Get.find<InfoController>();
+
     // Set up periodic task
     Timer.periodic(const Duration(seconds: 5), (timer) async {
-      Get.find<NetworkController>().connect();
+      networkCtrl.connect();
     });
 
     // Listen to location updates
-    Get.find<InfoController>().listenLocationUpdates();
+    infoCtrl.listenLocationUpdates();
 
     final settingsCtrl = Get.find<SettingsController>();
 

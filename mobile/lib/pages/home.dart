@@ -1,5 +1,6 @@
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/location.controller.dart';
+import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/pages/alerts.dart';
 import 'package:emergency_pulse/pages/map.dart';
@@ -16,6 +17,17 @@ class PageHome extends StatefulWidget {
 
 class _PageHomeState extends State<PageHome> {
   final selectedIndex = 0.obs;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final networkCtrl = Get.find<NetworkController>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      networkCtrl.connect();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
