@@ -6,6 +6,7 @@ import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
 import 'package:emergency_pulse/utils/file.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
@@ -56,12 +57,17 @@ Future<bool> markAsDone(String hashId, String remarks, Uint8List image) async {
       Uri.parse("${getBaseURL()}/api/alerts/$hashId/done"),
     );
 
+    final compressedImage = await FlutterImageCompress.compressWithList(
+      image,
+      quality: 50,
+    );
+
     request.fields["remarks"] = remarks.trim();
     request.files.add(
       http.MultipartFile.fromBytes(
         "picture",
-        image,
-        filename: "image.${getImageExtension(image.sublist(0, 100))}",
+        compressedImage,
+        filename: "image.${getImageExtension(compressedImage.sublist(0, 100))}",
       ),
     );
 

@@ -4,6 +4,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class SettingsController extends GetxController {
   final isDarkMode = false.obs;
+  final mainScaffoldKey = GlobalKey<ScaffoldState>();
+  final isTabOpen = false.obs;
+
+  TabController? tabController;
+  PersistentBottomSheetController? bottomSheetCtrl;
 
   @override
   void onInit() {

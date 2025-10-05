@@ -1,9 +1,9 @@
 import 'package:emergency_pulse/controllers/info.controller.dart';
-import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/pages/alerts.dart';
 import 'package:emergency_pulse/pages/map.dart';
+import 'package:emergency_pulse/views/alerts_sheet.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,10 +33,10 @@ class _PageHomeState extends State<PageHome> {
   Widget build(BuildContext context) {
     final infoCtrl = Get.find<InfoController>();
     final settingsCtrl = Get.find<SettingsController>();
-    final locationCtrl = Get.find<LocationController>();
     final pageCtrl = PageController();
 
     return Scaffold(
+      key: settingsCtrl.mainScaffoldKey,
       appBar: AppBar(
         title: Obx(
           () => Column(
@@ -91,25 +91,43 @@ class _PageHomeState extends State<PageHome> {
       ),
 
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Obx(
         () => AnimatedScale(
           scale: selectedIndex.value == 0 ? 0 : 1,
           duration: const Duration(milliseconds: 300),
-          child: FloatingActionButton.extended(
-            onPressed: locationCtrl.isRefreshing.value
-                ? null
-                : () {
-                    locationCtrl.refreshKey.currentState?.show();
-                  },
-            label: Obx(
-              () => Text(
-                locationCtrl.isRefreshing.value
-                    ? "Refreshing..."
-                    : "Refresh Alerts",
-              ),
+          child: FloatingActionButton(
+            onPressed: () {
+              if (settingsCtrl.isTabOpen.value) {
+                settingsCtrl.isTabOpen.value = false;
+                settingsCtrl.bottomSheetCtrl?.close();
+                return;
+              }
+
+              settingsCtrl.bottomSheetCtrl = settingsCtrl
+                  .mainScaffoldKey
+                  .currentState!
+                  .showBottomSheet(
+                    (context) {
+                      return SheetAlerts(
+                        tabController: settingsCtrl.tabController!,
+                      );
+                    },
+                    enableDrag: true,
+                    showDragHandle: true,
+                  );
+
+              settingsCtrl.isTabOpen.value = true;
+              settingsCtrl.bottomSheetCtrl?.closed.then((_) {
+                settingsCtrl.isTabOpen.value = false;
+              });
+            },
+            child: Icon(
+              settingsCtrl.isTabOpen.value
+                  ? Icons.keyboard_arrow_down
+                  : Icons.keyboard_arrow_up,
             ),
-            icon: const Icon(Icons.refresh),
           ),
         ),
       ),
@@ -131,6 +149,13 @@ class _PageHomeState extends State<PageHome> {
             ),
           ],
           onDestinationSelected: (index) {
+            if (index == 0) {
+              settingsCtrl.bottomSheetCtrl?.close();
+              settingsCtrl.isTabOpen.value = false;
+            } else if (index == 1) {
+              infoCtrl.checkLocationPermission();
+            }
+
             selectedIndex.value = index;
             pageCtrl.animateToPage(
               index,

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:emergency_pulse/model/alert.dart';
 
 import 'package:flutter/material.dart';
@@ -8,7 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LocationController extends GetxController {
   // Google Map controller
-  final mapController = Completer<GoogleMapController>();
+  GoogleMapController? mapController;
+
   // Refresh indicator key
   final refreshKey = GlobalKey<RefreshIndicatorState>();
   final isRefreshing = false.obs;

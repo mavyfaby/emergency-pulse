@@ -2,6 +2,7 @@ import 'package:emergency_pulse/components/dialogs/pin.dart';
 import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/network/request.dart';
+import 'package:emergency_pulse/views/alerts_sheet.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
@@ -15,15 +16,12 @@ class PageMap extends StatefulWidget {
   State<PageMap> createState() => _PageMapState();
 }
 
-class _PageMapState extends State<PageMap> {
+class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
   /// Maximum amount of cluster managers.
   static const int _clusterManagerMaxCount = 2;
 
   /// Amount of markers to be added to the cluster manager at once.
-  static const int _markersToAddToClusterManagerCount = 10;
-
-  /// Google map controller.
-  GoogleMapController? controller;
+  static const int _markersToAddToClusterManagerCount = 2;
 
   /// Counter for added cluster manager ids.
   int _clusterManagerIdCounter = 1;
@@ -38,6 +36,7 @@ class _PageMapState extends State<PageMap> {
   /// Map of markers with identifier as the key.
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
+  final config = ImageConfiguration(size: const Size(35, 45));
   final locationCtrl = Get.find<LocationController>();
   final settingsCtrl = Get.find<SettingsController>();
 
@@ -48,12 +47,19 @@ class _PageMapState extends State<PageMap> {
 
   @override
   void dispose() {
+    settingsCtrl.tabController?.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     _addClusterManager();
+
+    settingsCtrl.tabController = TabController(
+      initialIndex: 0,
+      length: 2,
+      vsync: this,
+    );
 
     // Load the dark mode style
     rootBundle.loadString("assets/map_styles/aubergine.json").then((value) {
@@ -62,11 +68,27 @@ class _PageMapState extends State<PageMap> {
 
     onRefresh();
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      settingsCtrl.bottomSheetCtrl = showBottomSheet(
+        context: context,
+        enableDrag: true,
+        showDragHandle: true,
+        builder: (context) {
+          return SheetAlerts(tabController: settingsCtrl.tabController!);
+        },
+      );
+
+      settingsCtrl.isTabOpen.value = true;
+      settingsCtrl.bottomSheetCtrl?.closed.then((_) {
+        settingsCtrl.isTabOpen.value = false;
+      });
+    });
   }
 
   void _onMapCreated(GoogleMapController controllerParam) {
     setState(() {
-      controller = controllerParam;
+      locationCtrl.mapController = controllerParam;
     });
   }
 
@@ -118,8 +140,6 @@ class _PageMapState extends State<PageMap> {
   }
 
   Future<void> onRefresh() async {
-    final config = ImageConfiguration(size: const Size(35, 45));
-
     markerDoneIcon ??= await BitmapDescriptor.asset(
       config,
       "assets/marker_done.png",
@@ -143,6 +163,7 @@ class _PageMapState extends State<PageMap> {
         markerId: markerId,
         position: LatLng(double.parse(alert.lat), double.parse(alert.lng)),
         icon: alert.doneAt == null ? markerPendingIcon! : markerDoneIcon!,
+        infoWindow: InfoWindow(title: alert.name, snippet: alert.contactNo),
         onTap: () {
           showDialog(
             context: context,
@@ -169,7 +190,7 @@ class _PageMapState extends State<PageMap> {
           style: settingsCtrl.isDarkMode.value ? darkStyle : null,
           myLocationEnabled: true,
           buildingsEnabled: true,
-          compassEnabled: false,
+          compassEnabled: true,
           zoomControlsEnabled: false,
           myLocationButtonEnabled: true,
           trafficEnabled: true,

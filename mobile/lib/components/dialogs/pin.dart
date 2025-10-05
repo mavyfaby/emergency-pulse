@@ -3,6 +3,7 @@ import 'package:emergency_pulse/components/dialogs/image.dart';
 import 'package:emergency_pulse/model/alert.dart';
 import 'package:emergency_pulse/network/request.dart';
 import 'package:emergency_pulse/utils/date.dart';
+
 import 'package:flutter/material.dart';
 
 class DialogPin extends StatelessWidget {
@@ -19,7 +20,7 @@ class DialogPin extends StatelessWidget {
         children: [
           Text(alert.name),
           Text(
-            alert.uuid,
+            alert.imei,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -76,29 +77,22 @@ class DialogPin extends StatelessWidget {
 
             SizedBox(height: 8),
 
-            if (alert.doneAt == null)
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => DialogDone(alert: alert),
-                    );
-                  },
-                  icon: const Icon(Icons.check),
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14.0),
-                    child: const Text("Mark as done"),
-                  ),
-                ),
+            TextField(
+              readOnly: true,
+              controller: TextEditingController(text: alert.notes),
+              minLines: 2,
+              maxLines: 4,
+              maxLength: 500,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Notes",
               ),
+            ),
 
             if (alert.doneAt != null)
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
+                child: FilledButton.tonalIcon(
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -135,6 +129,23 @@ class DialogPin extends StatelessWidget {
         //   )
         // else
         //   const SizedBox.shrink(),
+        FilledButton.icon(
+          onPressed: alert.doneAt != null
+              ? null
+              : () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => DialogDone(alert: alert),
+                  );
+                },
+          icon: const Icon(Icons.check),
+          label: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14.0),
+            child: const Text("Mark as done"),
+          ),
+        ),
+
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Close"),
