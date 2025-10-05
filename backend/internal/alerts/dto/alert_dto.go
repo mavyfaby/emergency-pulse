@@ -8,6 +8,7 @@ type AlertDTO struct {
 	ContactNo string  `json:"contactNo"`
 	Lat       string  `json:"lat"`
 	Lng       string  `json:"lng"`
+	Notes     string  `json:"notes"`
 	DoneAt    *string `json:"doneAt"`
 	HasImage  bool    `json:"hasImage"`
 	CreatedAt string  `json:"createdAt"`

@@ -17,6 +17,7 @@ type AlertModel struct {
 	ContactNo string     `db:"contact_no"`
 	Lat       string     `db:"lat"`
 	Lng       string     `db:"lng"`
+	Notes     string     `db:"notes"`
 	DoneAt    *time.Time `db:"done_at"`
 	HasImage  bool       `db:"has_image"`
 	CreatedAt time.Time  `db:"created_at"`
@@ -38,6 +39,7 @@ func (m AlertModel) ToDTO() (*alertDTO.AlertDTO, error) {
 		ContactNo: m.ContactNo,
 		Lat:       m.Lat,
 		Lng:       m.Lng,
+		Notes:     m.Notes,
 		HasImage:  m.HasImage,
 		CreatedAt: utils.TimeToISO8601(m.CreatedAt),
 	}
