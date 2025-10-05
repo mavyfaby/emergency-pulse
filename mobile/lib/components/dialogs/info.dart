@@ -4,7 +4,6 @@ import 'package:emergency_pulse/controllers/info.controller.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 class DialogInfo extends StatefulWidget {
   final bool isUpdate;
@@ -18,14 +17,14 @@ class DialogInfo extends StatefulWidget {
 class _DialogInfoState extends State<DialogInfo> {
   final Rx<File?> _imageFile = Rx<File?>(null);
 
-  Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
+  // Future<void> _pickImage(ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: source);
 
-    if (pickedFile != null) {
-      _imageFile.value = File(pickedFile.path);
-    }
-  }
+  //   if (pickedFile != null) {
+  //     _imageFile.value = File(pickedFile.path);
+  //   }
+  // }
 
   @override
   void initState() {
@@ -45,6 +44,11 @@ class _DialogInfoState extends State<DialogInfo> {
     final addressCtrl = TextEditingController(text: infoCtrl.address.value);
     final nameCtrl = TextEditingController(text: infoCtrl.name.value);
     final contactNoCtrl = TextEditingController(text: infoCtrl.contactNo.value);
+    final notesCtrl = TextEditingController(text: infoCtrl.notes.value);
+
+    final nameMessage = "".obs;
+    final addressMessage = "".obs;
+    final contactNoMessage = "".obs;
 
     return AlertDialog(
       title: widget.isUpdate
@@ -59,66 +63,86 @@ class _DialogInfoState extends State<DialogInfo> {
               TextField(
                 controller: nameCtrl,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   filled: true,
-                  labelText: 'Name',
+                  labelText: 'Name *',
                   icon: Icon(Icons.person_outline),
                   hintText: 'Enter your name',
+                  errorText: nameMessage.value.isNotEmpty
+                      ? nameMessage.value
+                      : null,
                 ),
               ),
               TextField(
                 controller: addressCtrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   filled: true,
-                  labelText: 'Full Address',
+                  labelText: 'Full Address *',
                   icon: Icon(Icons.location_on_outlined),
                   hintText: 'Enter your full address',
+                  errorText: addressMessage.value.isNotEmpty
+                      ? addressMessage.value
+                      : null,
                 ),
               ),
               TextField(
                 controller: contactNoCtrl,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   filled: true,
-                  labelText: 'Contact Number',
+                  labelText: 'Contact Number *',
                   icon: Icon(Icons.phone_outlined),
                   hintText: 'Enter your contact number',
+                  errorText: contactNoMessage.value.isNotEmpty
+                      ? contactNoMessage.value
+                      : null,
+                ),
+              ),
+              TextField(
+                controller: notesCtrl,
+                minLines: 2,
+                maxLines: 4,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  filled: true,
+                  labelText: 'Additional Message',
+                  icon: Icon(Icons.notes_outlined),
                 ),
               ),
 
-              if (_imageFile.value != null || infoCtrl.picture.value.isNotEmpty)
-                Image.memory(
-                  _imageFile.value?.readAsBytesSync() ?? infoCtrl.picture.value,
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+              // if (_imageFile.value != null || infoCtrl.picture.value.isNotEmpty)
+              //   Image.memory(
+              //     _imageFile.value?.readAsBytesSync() ?? infoCtrl.picture.value,
+              //     height: 200,
+              //     fit: BoxFit.cover,
+              //   ),
 
-              Flex(
-                direction: Axis.horizontal,
-                spacing: 8,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: Icon(Icons.add_photo_alternate),
-                    label: Text("Select Image"),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: Icon(Icons.camera_alt_outlined),
-                    label: Text("Take Photo"),
-                  ),
-                ],
-              ),
-              Text(
-                "Optional: Select or take a picture of your place or surroundings so that rescuers and emergency services can precisely locate you.",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0,
-                ),
-              ),
+              // Flex(
+              //   direction: Axis.horizontal,
+              //   spacing: 8,
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     OutlinedButton.icon(
+              //       onPressed: () => _pickImage(ImageSource.gallery),
+              //       icon: Icon(Icons.add_photo_alternate),
+              //       label: Text("Select Image"),
+              //     ),
+              //     OutlinedButton.icon(
+              //       onPressed: () => _pickImage(ImageSource.camera),
+              //       icon: Icon(Icons.camera_alt_outlined),
+              //       label: Text("Take Photo"),
+              //     ),
+              //   ],
+              // ),
+              // Text(
+              //   "Optional: Select or take a picture of your place or surroundings so that rescuers and emergency services can precisely locate you.",
+              //   textAlign: TextAlign.center,
+              //   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              //     color: Theme.of(context).colorScheme.onSurfaceVariant,
+              //     fontWeight: FontWeight.w500,
+              //     letterSpacing: 0,
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -130,12 +154,32 @@ class _DialogInfoState extends State<DialogInfo> {
         ),
         FilledButton(
           onPressed: () async {
-            await Get.find<InfoController>().checkLocationPermission();
+            nameMessage.value = "";
+            addressMessage.value = "";
+            contactNoMessage.value = "";
+
+            if (nameCtrl.text.trim().isEmpty) {
+              nameMessage.value = "Name is required";
+              return;
+            }
+
+            if (addressCtrl.text.trim().isEmpty) {
+              addressMessage.value = "Address is required";
+              return;
+            }
+
+            if (contactNoCtrl.text.trim().isEmpty) {
+              contactNoMessage.value = "Contact number is required";
+              return;
+            }
+
+            await infoCtrl.checkLocationPermission();
             await infoCtrl.save(
               nameCtrl.text,
               addressCtrl.text,
               contactNoCtrl.text,
-              _imageFile.value,
+              notesCtrl.text,
+              // _imageFile.value,
             );
 
             infoCtrl.load();

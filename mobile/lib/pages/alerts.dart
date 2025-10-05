@@ -166,9 +166,9 @@ class PageAlerts extends StatelessWidget {
                                     NetworkStatus.connected &&
                                 !infoCtrl.isSendingAlert.value
                             ? () {
-                                infoCtrl.isSendingAlert.value = true;
                                 infoCtrl.checkLocationPermission();
                                 networkCtrl.sendAlert();
+                                // networkCtrl.testTcpLimit();
                               }
                             : null,
                         child: Text(

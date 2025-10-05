@@ -120,22 +120,21 @@ class DialogPin extends StatelessWidget {
       ),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
-        if (alert.hasImage)
-          FilledButton.tonalIcon(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => DialogImage(
-                  imageUrl: "${getBaseURL()}/api/alerts/${alert.hashId}/image",
-                ),
-              );
-            },
-            icon: const Icon(Icons.image_outlined),
-            label: const Text("View Image"),
-          )
-        else
-          const SizedBox.shrink(),
-
+        // if (alert.hasImage)
+        //   FilledButton.tonalIcon(
+        //     onPressed: () {
+        //       showDialog(
+        //         context: context,
+        //         builder: (context) => DialogImage(
+        //           imageUrl: "${getBaseURL()}/api/alerts/${alert.hashId}/image",
+        //         ),
+        //       );
+        //     },
+        //     icon: const Icon(Icons.image_outlined),
+        //     label: const Text("View Image"),
+        //   )
+        // else
+        //   const SizedBox.shrink(),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Close"),

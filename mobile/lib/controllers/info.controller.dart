@@ -1,32 +1,29 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:cbor/cbor.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_device_imei/flutter_device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 class InfoController extends GetxController {
-  final uuid = "".obs;
+  final imei = "".obs;
   final name = "".obs;
   final contactNo = "".obs;
   final address = "".obs;
   final lat = "".obs;
   final lng = "".obs;
-  final picture = Uint8List.fromList([]).obs;
-  final isPictureAlreadyCompressed = false.obs;
+  final notes = "".obs;
+  // final picture = Uint8List.fromList([]).obs;
+  // final isPictureAlreadyCompressed = false.obs;
   final isLocationListening = false.obs;
   final isSendingAlert = false.obs;
 
   bool hasInfoFilled() {
     return name.value.isNotEmpty &&
-        contactNo.value.isNotEmpty &&
-        picture.value.isNotEmpty;
+        address.value.isNotEmpty &&
+        contactNo.value.isNotEmpty;
+    // picture.value.isNotEmpty;
   }
 
   Future<bool> isLocationServiceEnabled() async {
@@ -102,39 +99,43 @@ class InfoController extends GetxController {
     String name,
     String address,
     String contactNo,
-    File? picture,
+    String notes,
+    // File? picture,
   ) async {
     final info = Hive.box("info");
 
-    if (uuid.value.isEmpty) {
-      uuid.value = Uuid().v4();
-      info.put("uuid", uuid.value);
+    if (imei.value.isEmpty) {
+      info.put("imei", await FlutterDeviceImei.instance.getIMEI());
     }
 
     info.put("name", name.trim());
     info.put("address", address.trim());
     info.put("contactNo", contactNo.trim());
+    info.put("notes", notes.trim());
 
-    if (picture != null) {
-      if (!isPictureAlreadyCompressed.value) {
-        debugPrint("Compressing picture...");
+    // if (picture != null) {
+    //   if (!isPictureAlreadyCompressed.value) {
+    //     debugPrint("Compressing picture...");
 
-        final bytes = await FlutterImageCompress.compressWithList(
-          await picture.readAsBytes(),
-          quality: 75,
-        );
+    //     final bytes = await FlutterImageCompress.compressWithList(
+    //       await picture.readAsBytes(),
+    //       quality: 5,
+    //     );
 
-        debugPrint("Picture compressed!");
+    //     debugPrint("Picture compressed!");
 
-        isPictureAlreadyCompressed.value = true;
-        info.put("isPictureAlreadyCompressed", true);
-        info.put("picture", bytes);
-        return;
-      }
+    //     isPictureAlreadyCompressed.value = true;
+    //     info.put("isPictureAlreadyCompressed", true);
+    //     info.put("picture", bytes);
+    //     return;
+    //   }
 
-      debugPrint("Picture already compressed!");
-      info.put("picture", await picture.readAsBytes());
-    }
+    //   debugPrint("Picture already compressed!");
+    //   info.put("picture", await picture.readAsBytes());
+    // } else {
+    //   info.delete("picture");
+    //   info.delete("isPictureAlreadyCompressed");
+    // }
 
     load();
   }
@@ -143,27 +144,30 @@ class InfoController extends GetxController {
     final info = Hive.box("info");
     Get.find<InfoController>().listenLocationUpdates();
 
-    uuid.value = info.get("uuid") ?? "";
+    imei.value = info.get("imei") ?? "";
     name.value = info.get("name") ?? "";
     address.value = info.get("address") ?? "";
     contactNo.value = info.get("contactNo") ?? "";
     lat.value = info.get("lat") ?? "";
     lng.value = info.get("lng") ?? "";
-    picture.value = info.get("picture") ?? Uint8List.fromList([]);
-    isPictureAlreadyCompressed.value =
-        info.get("isPictureAlreadyCompressed") ?? false;
+    notes.value = info.get("notes") ?? "";
+
+    // picture.value = info.get("picture") ?? Uint8List.fromList([]);
+    // isPictureAlreadyCompressed.value =
+    //     info.get("isPictureAlreadyCompressed") ?? false;
   }
 
   List<int> getAlertData() {
     return cbor.encode(
       CborMap({
-        CborString("uuid"): CborString(uuid.value),
+        CborString("imei"): CborString(imei.value),
         CborString("name"): CborString(name.value),
         CborString("address"): CborString(address.value),
         CborString("contactNo"): CborString(contactNo.value),
         CborString("lat"): CborString(lat.value),
         CborString("lng"): CborString(lng.value),
-        CborString("picture"): CborBytes(picture.value),
+        CborString("notes"): CborString(notes.value),
+        // CborString("picture"): CborBytes(picture.value),
       }),
     );
   }

@@ -33,7 +33,7 @@ class _PageHomeState extends State<PageHome> {
                 ? [
                     const Text('Alerts'),
                     Text(
-                      infoCtrl.uuid.value,
+                      infoCtrl.imei.value,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w500,
