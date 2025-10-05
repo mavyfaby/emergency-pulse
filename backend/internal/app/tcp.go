@@ -4,6 +4,7 @@ import (
 	"emergency-pulse/internal/alerts/repository"
 	"emergency-pulse/internal/alerts/request"
 	"emergency-pulse/internal/config"
+	"emergency-pulse/internal/utils"
 
 	"encoding/binary"
 	"errors"
@@ -88,6 +89,14 @@ func handleConnection(alertRepo *repository.AlertRepository, client net.Conn) {
 			continue
 		}
 
+		alert.Notes = utils.Sanitize(alert.Notes)
+		alert.Name = utils.Sanitize(alert.Name)
+		alert.Address = utils.Sanitize(alert.Address)
+		alert.ContactNo = utils.SanitizeAndRemoveWhitespaces(alert.ContactNo)
+		alert.Lat = utils.SanitizeAndRemoveWhitespaces(alert.Lat)
+		alert.Lng = utils.SanitizeAndRemoveWhitespaces(alert.Lng)
+		alert.Notes = utils.Sanitize(alert.Notes)
+
 		slog.Info(
 			"🚨 ALERT 🚨",
 			slog.String("uuid", alert.UUID),
@@ -96,6 +105,7 @@ func handleConnection(alertRepo *repository.AlertRepository, client net.Conn) {
 			slog.String("contact", alert.ContactNo),
 			slog.String("lat", alert.Lat),
 			slog.String("lng", alert.Lng),
+			slog.String("notes", alert.Notes),
 			// slog.Int("pic_bytes", len(alert.Picture)),
 		)
 

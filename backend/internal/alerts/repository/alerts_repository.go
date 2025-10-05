@@ -58,9 +58,9 @@ func (r *AlertRepository) GetAlertByID(alertId int) (*model.AlertModel, error) {
 // }
 
 func (r *AlertRepository) CreateAlert(alert *request.EmergencyAlert) error {
-	var query = "INSERT INTO alerts (uuid, name, address, contact_no, lat, lng, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())"
+	var query = "INSERT INTO alerts (uuid, name, address, contact_no, lat, lng, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())"
 
-	result, err := r.DB.Exec(query, alert.UUID, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng)
+	result, err := r.DB.Exec(query, alert.UUID, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng, alert.Notes)
 
 	if err != nil {
 		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())

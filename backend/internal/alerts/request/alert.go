@@ -8,5 +8,6 @@ type EmergencyAlert struct {
 	ContactNo string `cbor:"contactNo"`
 	Lat       string `cbor:"lat"`
 	Lng       string `cbor:"lng"`
-	Picture   []byte `cbor:"picture"`
+	Notes     string `cbor:"notes"`
+	// Picture   []byte `cbor:"picture"`
 }
