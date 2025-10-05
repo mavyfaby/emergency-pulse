@@ -21,7 +21,7 @@ func NewAlertRepository(db *sqlx.DB) *AlertRepository {
 func (r *AlertRepository) GetAlerts() ([]*model.AlertModel, error) {
 	var alerts []*model.AlertModel
 
-	err := r.DB.Select(&alerts, "SELECT id, imei, name, address, contact_no, lat, lng, done_at created_at FROM alerts")
+	err := r.DB.Select(&alerts, "SELECT id, imei, name, address, contact_no, lat, lng, done_at, created_at FROM alerts")
 
 	if err != nil {
 		slog.Error("[AlertRepository.GetAlerts] [1] ERROR: " + err.Error())
