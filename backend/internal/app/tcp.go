@@ -96,7 +96,7 @@ func handleConnection(alertRepo *repository.AlertRepository, client net.Conn) {
 			slog.String("contact", alert.ContactNo),
 			slog.String("lat", alert.Lat),
 			slog.String("lng", alert.Lng),
-			slog.Int("pic_bytes", len(alert.Picture)),
+			// slog.Int("pic_bytes", len(alert.Picture)),
 		)
 
 		// 4. Save the alert

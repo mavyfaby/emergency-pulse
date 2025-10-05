@@ -21,7 +21,7 @@ func NewAlertRepository(db *sqlx.DB) *AlertRepository {
 func (r *AlertRepository) GetAlerts() ([]*model.AlertModel, error) {
 	var alerts []*model.AlertModel
 
-	err := r.DB.Select(&alerts, "SELECT id, uuid, name, address, contact_no, lat, lng, done_at, (picture IS NOT NULL) as has_image, created_at FROM alerts")
+	err := r.DB.Select(&alerts, "SELECT id, uuid, name, address, contact_no, lat, lng, done_at created_at FROM alerts")
 
 	if err != nil {
 		slog.Error("[AlertRepository.GetAlerts] [1] ERROR: " + err.Error())
@@ -34,7 +34,7 @@ func (r *AlertRepository) GetAlerts() ([]*model.AlertModel, error) {
 func (r *AlertRepository) GetAlertByID(alertId int) (*model.AlertModel, error) {
 	var alert model.AlertModel
 
-	err := r.DB.Get(&alert, "SELECT id, uuid, name, address, contact_no, lat, lng, done_at, (picture IS NOT NULL) as has_image, created_at FROM alerts WHERE id = ?", alertId)
+	err := r.DB.Get(&alert, "SELECT id, uuid, name, address, contact_no, lat, lng, done_at, created_at FROM alerts WHERE id = ?", alertId)
 
 	if err != nil {
 		slog.Error("[AlertRepository.GetAlertByID] [1] ERROR: " + err.Error())
@@ -44,25 +44,23 @@ func (r *AlertRepository) GetAlertByID(alertId int) (*model.AlertModel, error) {
 	return &alert, nil
 }
 
-func (r *AlertRepository) GetAlertImage(alertId int) (*model.AlertImage, error) {
-	var image model.AlertImage
+// func (r *AlertRepository) GetAlertImage(alertId int) (*model.AlertImage, error) {
+// 	var image model.AlertImage
 
-	err := r.DB.Get(&image, "SELECT picture, picture_type FROM alerts WHERE id = ?", alertId)
+// 	err := r.DB.Get(&image, "SELECT picture, picture_type FROM alerts WHERE id = ?", alertId)
 
-	if err != nil {
-		slog.Error("[AlertRepository.GetAlertImage] [1] ERROR: " + err.Error())
-		return nil, err
-	}
+// 	if err != nil {
+// 		slog.Error("[AlertRepository.GetAlertImage] [1] ERROR: " + err.Error())
+// 		return nil, err
+// 	}
 
-	return &image, nil
-}
+// 	return &image, nil
+// }
 
 func (r *AlertRepository) CreateAlert(alert *request.EmergencyAlert) error {
-	contentType := http.DetectContentType(alert.Picture)
+	var query = "INSERT INTO alerts (uuid, name, address, contact_no, lat, lng, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())"
 
-	var query = "INSERT INTO alerts (uuid, picture, picture_type, name, address, contact_no, lat, lng, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())"
-
-	result, err := r.DB.Exec(query, alert.UUID, alert.Picture, contentType, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng)
+	result, err := r.DB.Exec(query, alert.UUID, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng)
 
 	if err != nil {
 		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())

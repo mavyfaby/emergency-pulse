@@ -34,5 +34,5 @@ func Setup(e *echo.Group, module AlertModule) {
 	api.GET("", module.AlertHandler.GetAlerts)
 	api.POST("/:hashId/done", module.AlertHandler.MarkAlertDone)
 	api.GET("/:hashId/done-image", module.AlertHandler.GetAlertDoneImage)
-	api.GET("/:hashId/image", module.AlertHandler.GetAlertImage)
+	// api.GET("/:hashId/image", module.AlertHandler.GetAlertImage)
 }

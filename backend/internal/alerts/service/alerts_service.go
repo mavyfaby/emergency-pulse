@@ -28,16 +28,16 @@ func (s *AlertService) GetAlerts() ([]*dto.AlertDTO, error) {
 	return model.AlertsToDTOs(alerts)
 }
 
-func (s *AlertService) GetAlertImage(alertId int) (*model.AlertImage, error) {
-	image, err := s.Repo.GetAlertImage(alertId)
+// func (s *AlertService) GetAlertImage(alertId int) (*model.AlertImage, error) {
+// 	image, err := s.Repo.GetAlertImage(alertId)
 
-	if err != nil {
-		slog.Error("Failed to fetch alert image!: " + err.Error())
-		return nil, err
-	}
+// 	if err != nil {
+// 		slog.Error("Failed to fetch alert image!: " + err.Error())
+// 		return nil, err
+// 	}
 
-	return image, nil
-}
+// 	return image, nil
+// }
 
 func (s *AlertService) GetAlertDoneImage(alertId int) (*model.AlertDoneImage, error) {
 	image, err := s.Repo.GetAlertDoneImage(alertId)
