@@ -10,7 +10,6 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:dough/dough.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
@@ -164,8 +163,8 @@ class PageAlerts extends StatelessWidget {
                 PressableDough(
                   child: AnimatedScale(
                     scale: scale.value,
-                    curve: Curves.elasticInOut,
-                    duration: const Duration(milliseconds: 210),
+                    curve: Curves.elasticOut,
+                    duration: Duration(seconds: timeoutInSeconds),
                     child: SizedBox(
                       width: 250,
                       height: 250,
@@ -182,8 +181,17 @@ class PageAlerts extends StatelessWidget {
 
                         child: GestureDetector(
                           onLongPressStart: (details) {
+                            if (!infoCtrl.hasInfoFilled() ||
+                                !infoCtrl.isLocationListening.value ||
+                                networkCtrl.status.value !=
+                                    NetworkStatus.connected ||
+                                infoCtrl.isSendingAlert.value) {
+                              return;
+                            }
+
                             debugPrint("Long press started");
                             isPressed.value = true;
+                            scale.value = 1.2;
 
                             if (settingsCtrl.hasVibrator.value) {
                               Vibration.vibrate(
@@ -205,16 +213,26 @@ class PageAlerts extends StatelessWidget {
 
                                 timer.cancel();
                                 isPressed.value = false;
+                                scale.value = 1;
                                 networkCtrl.sendAlert();
                                 currentTimeout.value = timeoutInSeconds;
                               }
                             });
                           },
                           onLongPressEnd: (details) {
+                            if (!infoCtrl.hasInfoFilled() ||
+                                !infoCtrl.isLocationListening.value ||
+                                networkCtrl.status.value !=
+                                    NetworkStatus.connected ||
+                                infoCtrl.isSendingAlert.value) {
+                              return;
+                            }
+
                             debugPrint("Long press ended");
                             isPressed.value = false;
                             timer?.cancel();
                             currentTimeout.value = timeoutInSeconds;
+                            scale.value = 1;
 
                             if (settingsCtrl.hasVibrator.value) {
                               Vibration.vibrate(
@@ -230,7 +248,16 @@ class PageAlerts extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isPressed.value
+                              color:
+                                  infoCtrl.isSendingAlert.value ||
+                                      networkCtrl.status.value !=
+                                          NetworkStatus.connected ||
+                                      !infoCtrl.isLocationListening.value ||
+                                      !infoCtrl.hasInfoFilled()
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainer
+                                  : isPressed.value
                                   ? Theme.of(context).colorScheme.onSurface
                                   : Theme.of(context).colorScheme.primary,
                             ),
@@ -241,24 +268,31 @@ class PageAlerts extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  isPressed.value
-                                      ? "Will send alert in"
-                                      : "Long press for 3 seconds to",
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        letterSpacing: 0,
-                                        color: isPressed.value
-                                            ? Theme.of(
-                                                context,
-                                              ).colorScheme.surface
-                                            : Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary
-                                                  .withAlpha(220),
-                                      ),
-                                ),
+                                if (infoCtrl.hasInfoFilled() &&
+                                    infoCtrl.isLocationListening.value &&
+                                    networkCtrl.status.value ==
+                                        NetworkStatus.connected &&
+                                    !infoCtrl.isSendingAlert.value)
+                                  Text(
+                                    isPressed.value
+                                        ? "Will send alert in"
+                                        : "Long press for 3 seconds to",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0,
+                                          color: isPressed.value
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.surface
+                                              : Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary
+                                                    .withAlpha(220),
+                                        ),
+                                  ),
 
                                 if (isPressed.value)
                                   Text(
@@ -276,15 +310,34 @@ class PageAlerts extends StatelessWidget {
                                   )
                                 else
                                   Text(
-                                    "Send Alert",
+                                    infoCtrl.hasInfoFilled() &&
+                                            infoCtrl
+                                                .isLocationListening
+                                                .value &&
+                                            networkCtrl.status.value ==
+                                                NetworkStatus.connected &&
+                                            !infoCtrl.isSendingAlert.value
+                                        ? "Send Alert"
+                                        : "-",
                                     style: Theme.of(context)
                                         .textTheme
                                         .headlineSmall
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimary,
+                                          color:
+                                              infoCtrl.hasInfoFilled() &&
+                                                  infoCtrl
+                                                      .isLocationListening
+                                                      .value &&
+                                                  networkCtrl.status.value ==
+                                                      NetworkStatus.connected &&
+                                                  !infoCtrl.isSendingAlert.value
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.outline,
                                         ),
                                   ),
                               ],
@@ -299,7 +352,7 @@ class PageAlerts extends StatelessWidget {
                 if (!infoCtrl.hasInfoFilled())
                   Column(
                     children: [
-                      SizedBox(height: 100),
+                      SizedBox(height: 50),
                       Text(
                         "Fill in your information to send an alert!",
                         textAlign: TextAlign.center,
