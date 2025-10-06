@@ -3,12 +3,17 @@ import 'dart:async';
 import 'package:emergency_pulse/components/dialogs/info.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
+import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/enums/status.dart';
 
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:dough/dough.dart';
+import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 class PageAlerts extends StatelessWidget {
   const PageAlerts({super.key});
@@ -17,8 +22,10 @@ class PageAlerts extends StatelessWidget {
   Widget build(BuildContext context) {
     final infoCtrl = Get.find<InfoController>();
     final networkCtrl = Get.find<NetworkController>();
-    final timeoutInSeconds = 5;
+    final settingsCtrl = Get.find<SettingsController>();
+    final timeoutInSeconds = 3;
     final currentTimeout = timeoutInSeconds.obs;
+    final isPressed = false.obs;
     final scale = 1.0.obs;
 
     Timer? timer;
@@ -169,113 +176,119 @@ class PageAlerts extends StatelessWidget {
                             networkCtrl.status.value ==
                                 NetworkStatus.connected &&
                             !infoCtrl.isSendingAlert.value,
-                        glowColor: currentTimeout.value == timeoutInSeconds
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurface,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor:
-                                currentTimeout.value == timeoutInSeconds
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                          onPressed:
-                              infoCtrl.hasInfoFilled() &&
-                                  infoCtrl.isLocationListening.value &&
-                                  networkCtrl.status.value ==
-                                      NetworkStatus.connected &&
-                                  !infoCtrl.isSendingAlert.value
-                              ? () {
-                                  if (currentTimeout.value ==
-                                      timeoutInSeconds) {
-                                    currentTimeout.value--;
+                        glowColor: isPressed.value
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.primary,
 
-                                    scale.value = 1.2;
+                        child: GestureDetector(
+                          onLongPressStart: (details) {
+                            debugPrint("Long press started");
+                            isPressed.value = true;
 
-                                    timer = Timer.periodic(
-                                      Duration(seconds: 1),
-                                      (timer) {
-                                        currentTimeout.value--;
+                            if (settingsCtrl.hasVibrator.value) {
+                              Vibration.vibrate(
+                                preset: VibrationPreset.gentleReminder,
+                              );
+                            }
 
-                                        if (currentTimeout.value <= 0) {
-                                          timer.cancel();
-                                          scale.value = 1.0;
-                                          currentTimeout.value =
-                                              timeoutInSeconds;
-                                        }
-                                      },
-                                    );
-                                  } else {
-                                    scale.value = 1.0;
-                                    timer?.cancel();
-                                    currentTimeout.value = timeoutInSeconds;
-                                    infoCtrl.checkLocationPermission();
-                                    networkCtrl.sendAlert();
-                                  }
+                            timer = Timer.periodic(const Duration(seconds: 1), (
+                              timer,
+                            ) {
+                              currentTimeout.value--;
+
+                              if (currentTimeout.value <= 0) {
+                                if (settingsCtrl.hasVibrator.value) {
+                                  Vibration.vibrate(
+                                    preset: VibrationPreset.emergencyAlert,
+                                  );
                                 }
-                              : null,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (!infoCtrl.isSendingAlert.value)
+
+                                timer.cancel();
+                                isPressed.value = false;
+                                networkCtrl.sendAlert();
+                                currentTimeout.value = timeoutInSeconds;
+                              }
+                            });
+                          },
+                          onLongPressEnd: (details) {
+                            debugPrint("Long press ended");
+                            isPressed.value = false;
+                            timer?.cancel();
+                            currentTimeout.value = timeoutInSeconds;
+
+                            if (settingsCtrl.hasVibrator.value) {
+                              Vibration.vibrate(
+                                preset: VibrationPreset.gentleReminder,
+                              );
+                            }
+
+                            showAlertDialog(
+                              "Alert canceled",
+                              "You stopped the alert. Everything's okay.",
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isPressed.value
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.primary,
+                            ),
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                                 Text(
-                                  currentTimeout.value < timeoutInSeconds
-                                      ? "Tap again to"
-                                      : "Double-tap to",
+                                  isPressed.value
+                                      ? "Will send alert in"
+                                      : "Long press for 3 seconds to",
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.w500,
-                                        color:
-                                            currentTimeout.value ==
-                                                timeoutInSeconds
+                                        letterSpacing: 0,
+                                        color: isPressed.value
                                             ? Theme.of(
                                                 context,
-                                              ).colorScheme.onPrimary
-                                            : Theme.of(
-                                                context,
-                                              ).colorScheme.surface,
+                                              ).colorScheme.surface
+                                            : Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary
+                                                  .withAlpha(220),
                                       ),
                                 ),
 
-                              Text(
-                                infoCtrl.isSendingAlert.value
-                                    ? "Sending..."
-                                    : "Send Alert",
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      color:
-                                          currentTimeout.value ==
-                                              timeoutInSeconds
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onPrimary
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.surface,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-
-                              if (currentTimeout.value < timeoutInSeconds)
-                                Text(
-                                  "Will cancel in ${currentTimeout.value} seconds",
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color:
-                                            currentTimeout.value ==
-                                                timeoutInSeconds
-                                            ? Theme.of(
-                                                context,
-                                              ).colorScheme.onPrimary
-                                            : Theme.of(
-                                                context,
-                                              ).colorScheme.surface,
-                                      ),
-                                ),
-                            ],
+                                if (isPressed.value)
+                                  Text(
+                                    "${currentTimeout.value}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.surface,
+                                        ),
+                                  )
+                                else
+                                  Text(
+                                    "Send Alert",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
+                                        ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

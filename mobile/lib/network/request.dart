@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
+import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:emergency_pulse/utils/file.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -45,6 +46,12 @@ Future<void> fetchAlerts() async {
   debugPrint(
     "[2] Failed to fetch alerts with status code ${response.statusCode}",
   );
+
+  showAlertDialog(
+    "Failed to fetch alerts",
+    "Can't acquire alerts. Please tap refresh alerts again.",
+  );
+
   return;
 }
 
@@ -75,6 +82,12 @@ Future<bool> markAsDone(String hashId, String remarks, Uint8List image) async {
       const Duration(seconds: 10),
       onTimeout: () async {
         debugPrint("[1] Failed to mark alert as done!");
+
+        showAlertDialog(
+          "Failed to mark alert as done",
+          "An error occurred while marking alert as done. Please try again later.",
+        );
+
         return http.StreamedResponse(Stream.value([]), 408);
       },
     );

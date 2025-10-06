@@ -66,8 +66,8 @@ class NetworkController extends GetxController {
       // 2. Listen for incoming data
       socket!.listen(
         (List<int> event) {
-          final message = utf8.decode(event);
-          debugPrint('Server: $message');
+          // final message = utf8.decode(event);
+          // debugPrint('Server: $message');
 
           // if (message == "ACK") {
           //   infoCtrl.isSendingAlert.value = false;

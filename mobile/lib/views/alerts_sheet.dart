@@ -13,7 +13,7 @@ class SheetAlerts extends StatelessWidget {
     final locationCtrl = Get.find<LocationController>();
 
     return SizedBox(
-      height: 400,
+      height: 500,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

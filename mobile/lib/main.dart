@@ -8,9 +8,11 @@ import 'package:emergency_pulse/pages/home.dart' show PageHome;
 import 'package:emergency_pulse/theme.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:vibration/vibration.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,16 @@ void main() async {
   Get.put(LocationController());
 
   settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
+  settingsCtrl.hasVibrator.value = await Vibration.hasVibrator();
+
   infoCtrl.load();
+
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final initializationSettings = InitializationSettings(
+    android: AndroidInitializationSettings("ic_launcher"),
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   runApp(const MyApp());
 }

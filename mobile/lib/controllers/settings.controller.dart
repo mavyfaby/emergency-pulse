@@ -7,6 +7,7 @@ class SettingsController extends GetxController {
   final isDarkMode = false.obs;
   final mainScaffoldKey = GlobalKey<ScaffoldState>();
   final isTabOpen = false.obs;
+  final hasVibrator = false.obs;
 
   PackageInfo? packageInfo;
   TabController? tabController;
