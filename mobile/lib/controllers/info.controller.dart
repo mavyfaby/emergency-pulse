@@ -1,12 +1,18 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:cbor/cbor.dart';
+import 'package:emergency_pulse/utils/security.dart';
 import 'package:flutter_device_imei/flutter_device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class InfoController extends GetxController {
+  final deviceModel = "".obs;
+  final deviceBrand = "".obs;
+  final deviceVersion = "".obs;
+  final deviceName = "".obs;
   final imei = "".obs;
   final name = "".obs;
   final contactNo = "".obs;
@@ -14,17 +20,8 @@ class InfoController extends GetxController {
   final lat = "".obs;
   final lng = "".obs;
   final notes = "".obs;
-  // final picture = Uint8List.fromList([]).obs;
-  // final isPictureAlreadyCompressed = false.obs;
   final isLocationListening = false.obs;
   final isSendingAlert = false.obs;
-
-  bool hasInfoFilled() {
-    return name.value.isNotEmpty &&
-        address.value.isNotEmpty &&
-        contactNo.value.isNotEmpty;
-    // picture.value.isNotEmpty;
-  }
 
   Future<bool> isLocationServiceEnabled() async {
     final isEnabled = await Geolocator.isLocationServiceEnabled();
@@ -100,51 +97,31 @@ class InfoController extends GetxController {
     String address,
     String contactNo,
     String notes,
-    // File? picture,
   ) async {
     final info = Hive.box("info");
 
-    if (imei.value.isEmpty) {
-      info.put("imei", await FlutterDeviceImei.instance.getIMEI());
-    }
-
-    info.put("name", name.trim());
-    info.put("address", address.trim());
-    info.put("contactNo", contactNo.trim());
-    info.put("notes", notes.trim());
-
-    // if (picture != null) {
-    //   if (!isPictureAlreadyCompressed.value) {
-    //     debugPrint("Compressing picture...");
-
-    //     final bytes = await FlutterImageCompress.compressWithList(
-    //       await picture.readAsBytes(),
-    //       quality: 5,
-    //     );
-
-    //     debugPrint("Picture compressed!");
-
-    //     isPictureAlreadyCompressed.value = true;
-    //     info.put("isPictureAlreadyCompressed", true);
-    //     info.put("picture", bytes);
-    //     return;
-    //   }
-
-    //   debugPrint("Picture already compressed!");
-    //   info.put("picture", await picture.readAsBytes());
-    // } else {
-    //   info.delete("picture");
-    //   info.delete("isPictureAlreadyCompressed");
-    // }
+    info.put("name", sanitize(name));
+    info.put("address", sanitize(address));
+    info.put("contactNo", sanitize(contactNo));
+    info.put("notes", sanitize(notes));
 
     load();
   }
 
-  void load() {
+  Future<void> load() async {
     final info = Hive.box("info");
     Get.find<InfoController>().listenLocationUpdates();
 
-    imei.value = info.get("imei") ?? "";
+    if (imei.value.isEmpty) {
+      final deviceInfo = await DeviceInfoPlugin().androidInfo;
+
+      info.put("imei", await FlutterDeviceImei.instance.getIMEI());
+      info.put("device_model", deviceInfo.model);
+      info.put("device_brand", deviceInfo.brand);
+      info.put("device_version", deviceInfo.version.release);
+      info.put("device_name", deviceInfo.name);
+    }
+
     name.value = info.get("name") ?? "";
     address.value = info.get("address") ?? "";
     contactNo.value = info.get("contactNo") ?? "";
@@ -152,9 +129,11 @@ class InfoController extends GetxController {
     lng.value = info.get("lng") ?? "";
     notes.value = info.get("notes") ?? "";
 
-    // picture.value = info.get("picture") ?? Uint8List.fromList([]);
-    // isPictureAlreadyCompressed.value =
-    //     info.get("isPictureAlreadyCompressed") ?? false;
+    imei.value = info.get("imei") ?? "";
+    deviceModel.value = info.get("device_model") ?? "";
+    deviceBrand.value = info.get("device_brand") ?? "";
+    deviceVersion.value = info.get("device_version") ?? "";
+    deviceName.value = info.get("device_name") ?? "";
   }
 
   List<int> getAlertData() {
@@ -166,8 +145,11 @@ class InfoController extends GetxController {
         CborString("contactNo"): CborString(contactNo.value),
         CborString("lat"): CborString(lat.value),
         CborString("lng"): CborString(lng.value),
+        CborString("device_model"): CborString(deviceModel.value),
+        CborString("device_brand"): CborString(deviceBrand.value),
+        CborString("device_version"): CborString(deviceVersion.value),
+        CborString("device_name"): CborString(deviceName.value),
         CborString("notes"): CborString(notes.value),
-        // CborString("picture"): CborBytes(picture.value),
       }),
     );
   }

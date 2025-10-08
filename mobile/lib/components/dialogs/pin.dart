@@ -1,10 +1,11 @@
 import 'package:emergency_pulse/components/dialogs/done.dart';
 import 'package:emergency_pulse/components/dialogs/image.dart';
+import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
-import 'package:emergency_pulse/network/request.dart';
 import 'package:emergency_pulse/utils/date.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DialogPin extends StatelessWidget {
   final AlertModel alert;
@@ -13,6 +14,8 @@ class DialogPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final networkCtrl = Get.find<NetworkController>();
+
     return AlertDialog(
       title: Column(
         mainAxisSize: MainAxisSize.min,
@@ -98,7 +101,7 @@ class DialogPin extends StatelessWidget {
                       context: context,
                       builder: (context) => DialogImage(
                         imageUrl:
-                            "${getBaseURL()}/api/alerts/${alert.hashId}/done-image",
+                            "${networkCtrl.apiBaseUrl}/api/alerts/${alert.hashId}/done-image",
                       ),
                     );
                   },
@@ -114,21 +117,6 @@ class DialogPin extends StatelessWidget {
       ),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
-        // if (alert.hasImage)
-        //   FilledButton.tonalIcon(
-        //     onPressed: () {
-        //       showDialog(
-        //         context: context,
-        //         builder: (context) => DialogImage(
-        //           imageUrl: "${getBaseURL()}/api/alerts/${alert.hashId}/image",
-        //         ),
-        //       );
-        //     },
-        //     icon: const Icon(Icons.image_outlined),
-        //     label: const Text("View Image"),
-        //   )
-        // else
-        //   const SizedBox.shrink(),
         FilledButton.icon(
           onPressed: alert.doneAt != null
               ? null

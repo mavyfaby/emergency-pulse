@@ -20,7 +20,7 @@ class DialogAbout extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              launchUrl(Uri.parse("https://mavyfaby.com/apps/pulse"));
+              launchUrl(Uri.parse("https://pulse.mavyfaby.com"));
             },
             child: Text(
               "Pulse",
@@ -84,7 +84,7 @@ class DialogAbout extends StatelessWidget {
                 Icons.link_rounded,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              SelectableText("https://mavyfaby.com/apps/pulse"),
+              SelectableText("https://pulse.mavyfaby.com"),
             ],
           ),
         ],

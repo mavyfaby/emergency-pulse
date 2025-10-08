@@ -11,18 +11,14 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
-String getBaseURL() {
-  final networkCtrl = Get.find<NetworkController>();
-  return "http://${networkCtrl.ipAddress}:${networkCtrl.apiPort}";
-}
-
 Future<void> fetchAlerts() async {
+  final networkCtrl = Get.find<NetworkController>();
   final locationCtrl = Get.find<LocationController>();
 
   debugPrint("Fetching alerts...");
 
   final response = await http
-      .get(Uri.parse("${getBaseURL()}/api/alerts"))
+      .get(Uri.parse("${networkCtrl.apiBaseUrl}/api/alerts"))
       .timeout(
         const Duration(seconds: 10),
         onTimeout: () async {
@@ -59,9 +55,10 @@ Future<bool> markAsDone(String hashId, String remarks, Uint8List image) async {
   debugPrint("Marking alert as done...");
 
   try {
+    final networkCtrl = Get.find<NetworkController>();
     final request = http.MultipartRequest(
       "POST",
-      Uri.parse("${getBaseURL()}/api/alerts/$hashId/done"),
+      Uri.parse("${networkCtrl.apiBaseUrl}/api/alerts/$hashId/done"),
     );
 
     final compressedImage = await FlutterImageCompress.compressWithList(

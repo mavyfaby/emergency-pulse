@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:emergency_pulse/controllers/info.controller.dart';
 
 import 'package:flutter/material.dart';
@@ -15,27 +13,10 @@ class DialogInfo extends StatefulWidget {
 }
 
 class _DialogInfoState extends State<DialogInfo> {
-  final Rx<File?> _imageFile = Rx<File?>(null);
-
-  // Future<void> _pickImage(ImageSource source) async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: source);
-
-  //   if (pickedFile != null) {
-  //     _imageFile.value = File(pickedFile.path);
-  //   }
-  // }
-
   @override
   void initState() {
     super.initState();
     Get.find<InfoController>().load();
-  }
-
-  @override
-  void dispose() {
-    _imageFile.value = null;
-    super.dispose();
   }
 
   @override
@@ -46,149 +27,106 @@ class _DialogInfoState extends State<DialogInfo> {
     final contactNoCtrl = TextEditingController(text: infoCtrl.contactNo.value);
     final notesCtrl = TextEditingController(text: infoCtrl.notes.value);
 
-    final nameMessage = "".obs;
-    final addressMessage = "".obs;
-    final contactNoMessage = "".obs;
-
     return AlertDialog(
       title: widget.isUpdate
           ? const Text('Update Information')
           : const Text('Add Information'),
       content: SingleChildScrollView(
-        child: Obx(
-          () => Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 16,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                autofocus: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  labelText: 'Name *',
-                  icon: Icon(Icons.person_outline),
-                  hintText: 'Enter your name',
-                  errorText: nameMessage.value.isNotEmpty
-                      ? nameMessage.value
-                      : null,
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 16,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              autofocus: true,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Name',
+                icon: Icon(Icons.person_outline),
+                hintText: 'Enter your name',
               ),
-              TextField(
-                controller: addressCtrl,
-                decoration: InputDecoration(
-                  filled: true,
-                  labelText: 'Full Address *',
-                  icon: Icon(Icons.location_on_outlined),
-                  hintText: 'Enter your full address',
-                  errorText: addressMessage.value.isNotEmpty
-                      ? addressMessage.value
-                      : null,
-                ),
+            ),
+            TextField(
+              controller: addressCtrl,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Full Address',
+                icon: Icon(Icons.location_on_outlined),
+                hintText: 'Enter your full address',
               ),
-              TextField(
-                controller: contactNoCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  filled: true,
-                  labelText: 'Contact Number *',
-                  icon: Icon(Icons.phone_outlined),
-                  hintText: 'Enter your contact number',
-                  errorText: contactNoMessage.value.isNotEmpty
-                      ? contactNoMessage.value
-                      : null,
-                ),
+            ),
+            TextField(
+              controller: contactNoCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Contact Number',
+                icon: Icon(Icons.phone_outlined),
+                hintText: 'Enter your contact number',
               ),
-              TextField(
-                controller: notesCtrl,
-                minLines: 2,
-                maxLines: 4,
-                maxLength: 500,
-                decoration: InputDecoration(
-                  filled: true,
-                  labelText: 'Additional Message',
-                  icon: Icon(Icons.notes_outlined),
-                ),
+            ),
+            TextField(
+              controller: notesCtrl,
+              minLines: 2,
+              maxLines: 4,
+              maxLength: 500,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Additional Message',
+                icon: Icon(Icons.notes_outlined),
               ),
-
-              // if (_imageFile.value != null || infoCtrl.picture.value.isNotEmpty)
-              //   Image.memory(
-              //     _imageFile.value?.readAsBytesSync() ?? infoCtrl.picture.value,
-              //     height: 200,
-              //     fit: BoxFit.cover,
-              //   ),
-
-              // Flex(
-              //   direction: Axis.horizontal,
-              //   spacing: 8,
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     OutlinedButton.icon(
-              //       onPressed: () => _pickImage(ImageSource.gallery),
-              //       icon: Icon(Icons.add_photo_alternate),
-              //       label: Text("Select Image"),
-              //     ),
-              //     OutlinedButton.icon(
-              //       onPressed: () => _pickImage(ImageSource.camera),
-              //       icon: Icon(Icons.camera_alt_outlined),
-              //       label: Text("Take Photo"),
-              //     ),
-              //   ],
-              // ),
-              // Text(
-              //   "Optional: Select or take a picture of your place or surroundings so that rescuers and emergency services can precisely locate you.",
-              //   textAlign: TextAlign.center,
-              //   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              //     color: Theme.of(context).colorScheme.onSurfaceVariant,
-              //     fontWeight: FontWeight.w500,
-              //     letterSpacing: 0,
-              //   ),
-              // ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () async {
-            nameMessage.value = "";
-            addressMessage.value = "";
-            contactNoMessage.value = "";
-
-            if (nameCtrl.text.trim().isEmpty) {
-              nameMessage.value = "Name is required";
-              return;
-            }
-
-            if (addressCtrl.text.trim().isEmpty) {
-              addressMessage.value = "Address is required";
-              return;
-            }
-
-            if (contactNoCtrl.text.trim().isEmpty) {
-              contactNoMessage.value = "Contact number is required";
-              return;
-            }
-
-            await infoCtrl.checkLocationPermission();
-            await infoCtrl.save(
-              nameCtrl.text,
-              addressCtrl.text,
-              contactNoCtrl.text,
-              notesCtrl.text,
-              // _imageFile.value,
-            );
-
-            infoCtrl.load();
-            Get.back();
+          onPressed: () {
+            nameCtrl.clear();
+            addressCtrl.clear();
+            contactNoCtrl.clear();
+            notesCtrl.clear();
           },
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
-          ),
-          child: const Text('Save Information'),
+          child: Text("Clear"),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                await infoCtrl.checkLocationPermission();
+                await infoCtrl.save(
+                  nameCtrl.text,
+                  addressCtrl.text,
+                  contactNoCtrl.text,
+                  notesCtrl.text,
+                );
+
+                infoCtrl.load();
+                Get.back();
+              },
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 22,
+                ),
+              ),
+              icon: const Icon(Icons.save_outlined),
+              label: Text(
+                'Save',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

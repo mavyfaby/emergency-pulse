@@ -11,6 +11,7 @@ import 'package:dough/dough.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
@@ -31,13 +32,13 @@ class PageAlerts extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.only(top: 30, left: 16, right: 16),
+        padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
         child: Center(
           child: Obx(
             () => Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (infoCtrl.hasInfoFilled())
+                if (infoCtrl.isLocationListening.value)
                   Column(
                     children: [
                       IntrinsicHeight(
@@ -108,7 +109,7 @@ class PageAlerts extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(height: 50),
+                      SizedBox(height: 32),
                       Text(
                         infoCtrl.name.value,
                         style: Theme.of(context).textTheme.headlineSmall
@@ -117,18 +118,10 @@ class PageAlerts extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                       ),
-                      Text(
-                        infoCtrl.contactNo.value,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      Text(
-                        infoCtrl.address.value,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
                     ],
                   ),
 
-                SizedBox(height: 32),
+                SizedBox(height: 24),
 
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -170,7 +163,6 @@ class PageAlerts extends StatelessWidget {
                       height: 250,
                       child: AvatarGlow(
                         animate:
-                            infoCtrl.hasInfoFilled() &&
                             infoCtrl.isLocationListening.value &&
                             networkCtrl.status.value ==
                                 NetworkStatus.connected &&
@@ -181,8 +173,7 @@ class PageAlerts extends StatelessWidget {
 
                         child: GestureDetector(
                           onLongPressStart: (details) {
-                            if (!infoCtrl.hasInfoFilled() ||
-                                !infoCtrl.isLocationListening.value ||
+                            if (!infoCtrl.isLocationListening.value ||
                                 networkCtrl.status.value !=
                                     NetworkStatus.connected ||
                                 infoCtrl.isSendingAlert.value) {
@@ -220,8 +211,7 @@ class PageAlerts extends StatelessWidget {
                             });
                           },
                           onLongPressEnd: (details) {
-                            if (!infoCtrl.hasInfoFilled() ||
-                                !infoCtrl.isLocationListening.value ||
+                            if (!infoCtrl.isLocationListening.value ||
                                 networkCtrl.status.value !=
                                     NetworkStatus.connected ||
                                 infoCtrl.isSendingAlert.value) {
@@ -252,8 +242,7 @@ class PageAlerts extends StatelessWidget {
                                   infoCtrl.isSendingAlert.value ||
                                       networkCtrl.status.value !=
                                           NetworkStatus.connected ||
-                                      !infoCtrl.isLocationListening.value ||
-                                      !infoCtrl.hasInfoFilled()
+                                      !infoCtrl.isLocationListening.value
                                   ? Theme.of(
                                       context,
                                     ).colorScheme.surfaceContainer
@@ -268,8 +257,7 @@ class PageAlerts extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (infoCtrl.hasInfoFilled() &&
-                                    infoCtrl.isLocationListening.value &&
+                                if (infoCtrl.isLocationListening.value &&
                                     networkCtrl.status.value ==
                                         NetworkStatus.connected &&
                                     !infoCtrl.isSendingAlert.value)
@@ -310,10 +298,7 @@ class PageAlerts extends StatelessWidget {
                                   )
                                 else
                                   Text(
-                                    infoCtrl.hasInfoFilled() &&
-                                            infoCtrl
-                                                .isLocationListening
-                                                .value &&
+                                    infoCtrl.isLocationListening.value &&
                                             networkCtrl.status.value ==
                                                 NetworkStatus.connected &&
                                             !infoCtrl.isSendingAlert.value
@@ -325,8 +310,7 @@ class PageAlerts extends StatelessWidget {
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color:
-                                              infoCtrl.hasInfoFilled() &&
-                                                  infoCtrl
+                                              infoCtrl
                                                       .isLocationListening
                                                       .value &&
                                                   networkCtrl.status.value ==
@@ -349,80 +333,66 @@ class PageAlerts extends StatelessWidget {
                   ),
                 ),
 
-                if (!infoCtrl.hasInfoFilled())
-                  Column(
-                    children: [
-                      SizedBox(height: 50),
-                      Text(
-                        "Fill in your information to send an alert!",
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
+                Column(
+                  children: [
+                    SizedBox(height: 24),
+                    Text(
+                      "By sending an alert, you agree to share your location and details for emergency purposes.",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        letterSpacing: 0,
+                        color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 32),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.edit, size: 24),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return DialogInfo(isUpdate: true);
+                          },
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 20,
+                        ),
+                      ),
+                      label: Text(
+                        "Update Information",
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontSize: 18,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return DialogInfo();
-                            },
-                          );
-                        },
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 24,
-                            horizontal: 20,
+                    ),
+                    SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        showSnackbar("Long press to learn more");
+                      },
+                      onLongPress: () {
+                        launchUrl(
+                          Uri.parse(
+                            "https://pulse.mavyfaby.com/privacy-policy",
                           ),
-                        ),
-                        icon: const Icon(Icons.add, size: 24),
-                        label: Text(
-                          'Add Information',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontSize: 18,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.w500,
-                              ),
+                        );
+                      },
+                      child: Text(
+                        "Learn more about how your data is used",
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      SizedBox(height: 20),
-                    ],
-                  )
-                else
-                  Column(
-                    children: [
-                      SizedBox(height: 50),
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.edit, size: 24),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return DialogInfo(isUpdate: true);
-                            },
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 18,
-                            horizontal: 20,
-                          ),
-                        ),
-                        label: Text(
-                          "Update Information",
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                fontSize: 18,
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
