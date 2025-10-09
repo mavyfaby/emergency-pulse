@@ -7,8 +7,11 @@ class AlertModel {
   final String lat;
   final String lng;
   final String notes;
+  final String deviceModel;
+  final String deviceBrand;
+  final String deviceVersion;
+  final String deviceName;
   final String? doneAt;
-  final bool hasImage;
   final String createdAt;
 
   AlertModel({
@@ -20,8 +23,11 @@ class AlertModel {
     required this.lat,
     required this.lng,
     required this.notes,
+    required this.deviceModel,
+    required this.deviceBrand,
+    required this.deviceVersion,
+    required this.deviceName,
     this.doneAt,
-    required this.hasImage,
     required this.createdAt,
   });
 
@@ -35,8 +41,11 @@ class AlertModel {
       lat: json['lat'],
       lng: json['lng'],
       notes: json['notes'],
+      deviceModel: json['deviceModel'],
+      deviceBrand: json['deviceBrand'],
+      deviceVersion: json['deviceVersion'],
+      deviceName: json['deviceName'],
       doneAt: json['doneAt'],
-      hasImage: json['hasImage'],
       createdAt: json['createdAt'],
     );
   }
@@ -51,8 +60,11 @@ class AlertModel {
       'lat': lat,
       'lng': lng,
       'notes': notes,
+      'deviceModel': deviceModel,
+      'deviceBrand': deviceBrand,
+      'deviceVersion': deviceVersion,
+      'deviceName': deviceName,
       'doneAt': doneAt,
-      'hasImage': hasImage,
       'createdAt': createdAt,
     };
   }

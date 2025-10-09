@@ -32,7 +32,7 @@ void main() async {
   settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
   settingsCtrl.hasVibrator.value = await Vibration.hasVibrator();
 
-  await infoCtrl.load();
+  await infoCtrl.load(willInitLocation: false);
 
   final isEnabled = await Geolocator.isLocationServiceEnabled();
   infoCtrl.isLocationServiceEnabled.value = isEnabled;
@@ -64,6 +64,8 @@ class MyApp extends StatelessWidget {
     });
 
     // Listen to location updates
+    infoCtrl.checkLocationService();
+    infoCtrl.checkLocationPermission();
     infoCtrl.listenLocationUpdates();
 
     final settingsCtrl = Get.find<SettingsController>();

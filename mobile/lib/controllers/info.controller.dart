@@ -138,12 +138,14 @@ class InfoController extends GetxController {
     load();
   }
 
-  Future<void> load() async {
+  Future<void> load({bool willInitLocation = true}) async {
     final infoCtrl = Get.find<InfoController>();
     final info = Hive.box("info");
 
-    await infoCtrl.checkLocationPermission();
-    await infoCtrl.listenLocationUpdates();
+    if (willInitLocation) {
+      await infoCtrl.checkLocationPermission();
+      await infoCtrl.listenLocationUpdates();
+    }
 
     if (imei.value.isEmpty) {
       final deviceInfo = await DeviceInfoPlugin().androidInfo;
