@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/enums/status.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
@@ -15,11 +17,13 @@ import 'package:http/http.dart';
 class NetworkController extends GetxController {
   Socket? socket;
   Client? client;
+  StreamSubscription<List<ConnectivityResult>>? subscription;
 
   final status = NetworkStatus.disconnected.obs;
   final alertAddress = "13.250.43.190";
-  final alertPort = 62000;
+  final alertPort = 62001;
   final apiBaseUrl = "https://pulse.mavyfaby.com";
+  final hasNetworkConnectivity = false.obs;
 
   @override
   void onInit() {
@@ -35,6 +39,36 @@ class NetworkController extends GetxController {
     client = null;
     socket = null;
     status.value = NetworkStatus.disconnected;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription?.cancel();
+  }
+
+  Future<void> listenConnectivity() async {
+    if (subscription != null) {
+      subscription!.cancel();
+    }
+
+    final connectivityResult = await Connectivity().checkConnectivity();
+
+    hasNetworkConnectivity.value =
+        connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.mobile);
+
+    subscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> result,
+    ) {
+      hasNetworkConnectivity.value =
+          result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.mobile);
+
+      debugPrint(
+        "Network connectivity changed: ${hasNetworkConnectivity.value}",
+      );
+    });
   }
 
   Future<void> connect() async {
@@ -65,8 +99,8 @@ class NetworkController extends GetxController {
       // 2. Listen for incoming data
       socket!.listen(
         (List<int> event) {
-          // final message = utf8.decode(event);
-          // debugPrint('Server: $message');
+          final message = utf8.decode(event);
+          debugPrint('Server: $message');
 
           // if (message == "ACK") {
           //   infoCtrl.isSendingAlert.value = false;

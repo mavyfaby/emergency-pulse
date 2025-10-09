@@ -9,6 +9,7 @@ import 'package:emergency_pulse/theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -24,13 +25,20 @@ void main() async {
 
   final infoCtrl = Get.put(InfoController());
   final settingsCtrl = Get.put(SettingsController());
-  Get.put(NetworkController());
+  final networkCtrl = Get.put(NetworkController());
+
   Get.put(LocationController());
 
   settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
   settingsCtrl.hasVibrator.value = await Vibration.hasVibrator();
 
-  infoCtrl.load();
+  await infoCtrl.load();
+
+  final isEnabled = await Geolocator.isLocationServiceEnabled();
+  infoCtrl.isLocationServiceEnabled.value = isEnabled;
+
+  infoCtrl.listenToLocationService();
+  networkCtrl.listenConnectivity();
 
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final initializationSettings = InitializationSettings(

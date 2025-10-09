@@ -7,6 +7,7 @@ import 'package:emergency_pulse/pages/map.dart';
 import 'package:emergency_pulse/views/alerts_sheet.dart';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class PageHome extends StatefulWidget {
@@ -16,18 +17,42 @@ class PageHome extends StatefulWidget {
   State<PageHome> createState() => _PageHomeState();
 }
 
-class _PageHomeState extends State<PageHome> {
+class _PageHomeState extends State<PageHome> with WidgetsBindingObserver {
   final selectedIndex = 0.obs;
+  final infoCtrl = Get.find<InfoController>();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     final networkCtrl = Get.find<NetworkController>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       networkCtrl.connect();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      final permission = await Geolocator.checkPermission();
+      infoCtrl.isLocationPermissionGranted.value =
+          permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
+
+      if (infoCtrl.isLocationPermissionGranted.value) {
+        infoCtrl.load();
+      }
+    }
   }
 
   @override

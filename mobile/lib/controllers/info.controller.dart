@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 
@@ -21,16 +23,31 @@ class InfoController extends GetxController {
   final lng = "".obs;
   final notes = "".obs;
   final isLocationListening = false.obs;
+  final isLocationServiceEnabled = false.obs;
+  final isLocationPermissionGranted = false.obs;
   final isSendingAlert = false.obs;
 
-  Future<bool> isLocationServiceEnabled() async {
+  StreamSubscription<ServiceStatus>? serviceStatusStream;
+
+  void listenToLocationService() {
+    serviceStatusStream = Geolocator.getServiceStatusStream().listen((status) {
+      isLocationServiceEnabled.value = status == ServiceStatus.enabled;
+    });
+  }
+
+  Future<bool> checkLocationService() async {
     final isEnabled = await Geolocator.isLocationServiceEnabled();
+    isLocationServiceEnabled.value = isEnabled;
 
     if (!isEnabled) {
-      showAlertDialog(
-        "Location Service Disabled",
-        "Please enable location service to use this feature.",
+      await showAlertDialog(
+        "Location Services Off",
+        "Enable your location to help responders locate you accurately when you send an alert.",
+        confirmLabel: "Go to settings",
+        confirmAction: () {},
       );
+
+      Geolocator.openLocationSettings();
     }
 
     return isEnabled;
@@ -42,18 +59,31 @@ class InfoController extends GetxController {
     if (permission == LocationPermission.denied) {
       final result = await Geolocator.requestPermission();
 
-      if (result == LocationPermission.denied ||
-          result == LocationPermission.deniedForever) {
-        showAlertDialog(
-          "Location Permission Denied",
-          "Please grant location permission to use this feature.",
+      if (result == LocationPermission.denied) {
+        await showAlertDialog(
+          "Location Permission Required",
+          "We use your location only to help responders find you faster in case of an emergency.",
+          confirmLabel: "Request Permission",
+          confirmAction: () {},
         );
-      }
 
-      if (result == LocationPermission.deniedForever) {
+        await Geolocator.requestPermission();
+      } else if (result == LocationPermission.deniedForever) {
+        await showAlertDialog(
+          "Location Permission Required",
+          "We use your location only to help responders find you faster in case of an emergency.",
+          confirmLabel: "Go to settings",
+          confirmAction: () {},
+        );
+
         await Geolocator.openAppSettings();
       }
+
+      return;
     }
+
+    isLocationPermissionGranted.value = true;
+    listenLocationUpdates();
   }
 
   Future<void> listenLocationUpdates() async {
@@ -85,7 +115,7 @@ class InfoController extends GetxController {
   }
 
   Future<void> checkLocationPermission() async {
-    final isEnabled = await isLocationServiceEnabled();
+    final isEnabled = await checkLocationService();
 
     if (isEnabled) {
       await requestLocationPermission();
@@ -109,8 +139,11 @@ class InfoController extends GetxController {
   }
 
   Future<void> load() async {
+    final infoCtrl = Get.find<InfoController>();
     final info = Hive.box("info");
-    Get.find<InfoController>().listenLocationUpdates();
+
+    await infoCtrl.checkLocationPermission();
+    await infoCtrl.listenLocationUpdates();
 
     if (imei.value.isEmpty) {
       final deviceInfo = await DeviceInfoPlugin().androidInfo;
