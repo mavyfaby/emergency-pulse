@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"emergency-pulse/internal/alerts/model"
-	"emergency-pulse/internal/alerts/request"
 	"errors"
 	"log/slog"
 	"net/http"
+	"pulse/internal/alerts/model"
+	"pulse/internal/alerts/request"
 
 	"github.com/jmoiron/sqlx"
 )

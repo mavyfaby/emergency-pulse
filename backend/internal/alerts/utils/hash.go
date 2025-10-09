@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"emergency-pulse/internal/config"
-	"emergency-pulse/pkg/hashid"
+	"pulse/internal/config"
+	"pulse/pkg/hashid"
 )
 
 func HashAlertID(id int) (string, error) {

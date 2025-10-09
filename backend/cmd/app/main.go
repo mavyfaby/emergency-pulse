@@ -1,10 +1,10 @@
 package main
 
 import (
-	"emergency-pulse/internal/app"
-	"emergency-pulse/internal/config"
-	"emergency-pulse/internal/db"
-	"emergency-pulse/internal/redis"
+	"pulse/internal/app"
+	"pulse/internal/config"
+	"pulse/internal/db"
+	"pulse/internal/redis"
 
 	"log/slog"
 	"strconv"

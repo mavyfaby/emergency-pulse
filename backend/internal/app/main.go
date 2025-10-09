@@ -1,9 +1,9 @@
 package app
 
 import (
-	"emergency-pulse/internal/config"
-	"emergency-pulse/internal/router"
-	"emergency-pulse/internal/validator"
+	"pulse/internal/config"
+	"pulse/internal/router"
+	"pulse/internal/validator"
 
 	"log/slog"
 	"strconv"

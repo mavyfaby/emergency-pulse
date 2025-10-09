@@ -1,10 +1,10 @@
 package db
 
 import (
-	"emergency-pulse/internal/config"
 	"fmt"
 	"log/slog"
 	"net/url"
+	"pulse/internal/config"
 
 	_ "github.com/go-sql-driver/mysql"
 

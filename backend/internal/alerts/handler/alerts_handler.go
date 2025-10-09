@@ -1,14 +1,14 @@
 package handler
 
 import (
-	"emergency-pulse/internal/alerts/service"
-	"emergency-pulse/internal/utils"
-	"emergency-pulse/pkg/response"
 	"io"
 	"log/slog"
 	"net/http"
+	"pulse/internal/alerts/service"
+	"pulse/internal/utils"
+	"pulse/pkg/response"
 
-	alertUtils "emergency-pulse/internal/alerts/utils"
+	alertUtils "pulse/internal/alerts/utils"
 
 	"github.com/labstack/echo/v4"
 )

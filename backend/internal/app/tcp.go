@@ -1,10 +1,10 @@
 package app
 
 import (
-	"emergency-pulse/internal/alerts/repository"
-	"emergency-pulse/internal/alerts/request"
-	"emergency-pulse/internal/config"
-	"emergency-pulse/internal/utils"
+	"pulse/internal/alerts/repository"
+	"pulse/internal/alerts/request"
+	"pulse/internal/config"
+	"pulse/internal/utils"
 
 	"encoding/binary"
 	"errors"

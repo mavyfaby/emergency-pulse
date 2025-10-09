@@ -1,12 +1,12 @@
 package service
 
 import (
-	"emergency-pulse/internal/alerts/dto"
-	"emergency-pulse/internal/alerts/model"
-	"emergency-pulse/internal/alerts/repository"
-	"emergency-pulse/internal/utils"
 	"errors"
 	"log/slog"
+	"pulse/internal/alerts/dto"
+	"pulse/internal/alerts/model"
+	"pulse/internal/alerts/repository"
+	"pulse/internal/utils"
 )
 
 type AlertService struct {

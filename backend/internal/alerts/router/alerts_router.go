@@ -1,9 +1,9 @@
 package router
 
 import (
-	"emergency-pulse/internal/alerts/handler"
-	"emergency-pulse/internal/alerts/repository"
-	"emergency-pulse/internal/alerts/service"
+	"pulse/internal/alerts/handler"
+	"pulse/internal/alerts/repository"
+	"pulse/internal/alerts/service"
 
 	"github.com/labstack/echo/v4"
 )

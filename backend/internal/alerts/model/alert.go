@@ -1,9 +1,9 @@
 package model
 
 import (
-	alertDTO "emergency-pulse/internal/alerts/dto"
-	alertUtils "emergency-pulse/internal/alerts/utils"
-	"emergency-pulse/internal/utils"
+	alertDTO "pulse/internal/alerts/dto"
+	alertUtils "pulse/internal/alerts/utils"
+	"pulse/internal/utils"
 
 	"log/slog"
 	"time"

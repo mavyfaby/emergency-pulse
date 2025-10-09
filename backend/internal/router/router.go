@@ -1,10 +1,10 @@
 package router
 
 import (
-	"emergency-pulse/internal/alerts/repository"
-	"emergency-pulse/internal/alerts/router"
-	"emergency-pulse/internal/config"
-	"emergency-pulse/pkg/response"
+	"pulse/internal/alerts/repository"
+	"pulse/internal/alerts/router"
+	"pulse/internal/config"
+	"pulse/pkg/response"
 
 	"errors"
 
