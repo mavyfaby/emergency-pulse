@@ -10,7 +10,7 @@ import (
 )
 
 type AlertModel struct {
-	ID            int32      `db:"id"`
+	AlertID       int32      `db:"alert_id"`
 	Imei          string     `db:"imei"`
 	Name          string     `db:"name"`
 	Address       string     `db:"address"`
@@ -28,7 +28,7 @@ type AlertModel struct {
 }
 
 func (m AlertModel) ToDTO() (*alertDTO.AlertDTO, error) {
-	alertHashID, err := alertUtils.HashAlertID(int(m.ID))
+	alertHashID, err := alertUtils.HashAlertID(int(m.AlertID))
 
 	if err != nil {
 		slog.Error("[AlertModel.ToDTO] [1] ERROR: " + err.Error())
