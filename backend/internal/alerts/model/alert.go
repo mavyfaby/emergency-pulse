@@ -22,7 +22,7 @@ type AlertModel struct {
 	DeviceVersion string     `db:"device_version"`
 	DeviceName    string     `db:"device_name"`
 	Notes         string     `db:"notes"`
-	DoneRemarks   string     `db:"done_remarks"`
+	DoneRemarks   *string    `db:"done_remarks"`
 	DoneAt        *time.Time `db:"done_at"`
 	CreatedAt     time.Time  `db:"created_at"`
 }
@@ -47,9 +47,12 @@ func (m AlertModel) ToDTO() (*alertDTO.AlertDTO, error) {
 		DeviceBrand:   m.DeviceBrand,
 		DeviceVersion: m.DeviceVersion,
 		DeviceName:    m.DeviceName,
-		DoneRemarks:   m.DoneRemarks,
 		Notes:         m.Notes,
 		CreatedAt:     utils.TimeToISO8601(m.CreatedAt),
+	}
+
+	if m.DoneRemarks != nil {
+		alertDTO.DoneRemarks = *m.DoneRemarks
 	}
 
 	if m.DoneAt != nil {
