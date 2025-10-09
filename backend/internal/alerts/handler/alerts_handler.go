@@ -116,25 +116,3 @@ func (h *AlertHandler) GetAlertDoneImage(c echo.Context) error {
 
 	return c.Blob(http.StatusOK, image.ContentType, *image.Image)
 }
-
-// func (h *AlertHandler) GetAlertImage(c echo.Context) error {
-// 	hashId := utils.SanitizeAndRemoveWhitespaces(c.Param("hashId"))
-
-// 	alertId, err := alertUtils.UnhashAlertID(hashId)
-
-// 	if err != nil {
-// 		slog.Error("Failed to unhash alert ID!: " + err.Error())
-// 		response.Error(c, 500, "Invalid Request!")
-// 		return err
-// 	}
-
-// 	image, err := h.Service.GetAlertImage(alertId)
-
-// 	if err != nil {
-// 		slog.Error("Failed to fetch alert image!: " + err.Error())
-// 		response.Error(c, 500, "Failed to fetch alert image!")
-// 		return err
-// 	}
-
-// 	return c.Blob(http.StatusOK, image.ContentType, *image.Image)
-// }

@@ -95,18 +95,25 @@ func handleConnection(alertRepo *repository.AlertRepository, client net.Conn) {
 		alert.ContactNo = utils.SanitizeAndRemoveWhitespaces(alert.ContactNo)
 		alert.Lat = utils.SanitizeAndRemoveWhitespaces(alert.Lat)
 		alert.Lng = utils.SanitizeAndRemoveWhitespaces(alert.Lng)
+		alert.DeviceModel = utils.Sanitize(alert.DeviceModel)
+		alert.DeviceBrand = utils.Sanitize(alert.DeviceBrand)
+		alert.DeviceVersion = utils.Sanitize(alert.DeviceVersion)
+		alert.DeviceName = utils.Sanitize(alert.DeviceName)
 		alert.Notes = utils.Sanitize(alert.Notes)
 
 		slog.Info(
 			"🚨 ALERT 🚨",
-			slog.String("imei", alert.IMEI),
+			slog.String("imei", alert.Imei),
 			slog.String("name", alert.Name),
 			slog.String("address", alert.Address),
-			slog.String("contact", alert.ContactNo),
+			slog.String("contact_no", alert.ContactNo),
 			slog.String("lat", alert.Lat),
 			slog.String("lng", alert.Lng),
+			slog.String("device_model", alert.DeviceModel),
+			slog.String("device_brand", alert.DeviceBrand),
+			slog.String("device_version", alert.DeviceVersion),
+			slog.String("device_name", alert.DeviceName),
 			slog.String("notes", alert.Notes),
-			// slog.Int("pic_bytes", len(alert.Picture)),
 		)
 
 		// 4. Save the alert

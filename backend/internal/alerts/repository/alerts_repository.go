@@ -20,8 +20,15 @@ func NewAlertRepository(db *sqlx.DB) *AlertRepository {
 
 func (r *AlertRepository) GetAlerts() ([]*model.AlertModel, error) {
 	var alerts []*model.AlertModel
+	var query = `
+		SELECT
+			alert_id, imei, name, address, contact_no, lat, lng, device_model, device_brand,
+			device_version, device_name, notes, done_remarks, done_at, created_at
+		FROM
+			alerts
+	`
 
-	err := r.DB.Select(&alerts, "SELECT id, imei, name, address, contact_no, lat, lng, notes, done_at, created_at FROM alerts")
+	err := r.DB.Select(&alerts, query)
 
 	if err != nil {
 		slog.Error("[AlertRepository.GetAlerts] [1] ERROR: " + err.Error())
@@ -33,8 +40,17 @@ func (r *AlertRepository) GetAlerts() ([]*model.AlertModel, error) {
 
 func (r *AlertRepository) GetAlertByID(alertId int) (*model.AlertModel, error) {
 	var alert model.AlertModel
+	var query = `
+		SELECT
+			alert_id, imei, name, address, contact_no, lat, lng, device_model, device_brand,
+			device_version, device_name, notes, done_remarks, done_at, created_at
+		FROM
+			alerts
+		WHERE
+			id = ?
+	`
 
-	err := r.DB.Get(&alert, "SELECT id, imei, name, address, contact_no, lat, lng, done_at, created_at FROM alerts WHERE id = ?", alertId)
+	err := r.DB.Get(&alert, query, alertId)
 
 	if err != nil {
 		slog.Error("[AlertRepository.GetAlertByID] [1] ERROR: " + err.Error())
@@ -44,23 +60,18 @@ func (r *AlertRepository) GetAlertByID(alertId int) (*model.AlertModel, error) {
 	return &alert, nil
 }
 
-// func (r *AlertRepository) GetAlertImage(alertId int) (*model.AlertImage, error) {
-// 	var image model.AlertImage
-
-// 	err := r.DB.Get(&image, "SELECT picture, picture_type FROM alerts WHERE id = ?", alertId)
-
-// 	if err != nil {
-// 		slog.Error("[AlertRepository.GetAlertImage] [1] ERROR: " + err.Error())
-// 		return nil, err
-// 	}
-
-// 	return &image, nil
-// }
-
 func (r *AlertRepository) CreateAlert(alert *request.EmergencyAlert) error {
-	var query = "INSERT INTO alerts (imei, name, address, contact_no, lat, lng, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())"
+	var query = `
+		INSERT INTO alerts
+			(imei, name, address, contact_no, lat, lng, device_model, device_brand, device_version, device_name, notes, created_at)
+		VALUES
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+	`
 
-	result, err := r.DB.Exec(query, alert.IMEI, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng, alert.Notes)
+	result, err := r.DB.Exec(query,
+		alert.Imei, alert.Name, alert.Address, alert.ContactNo, alert.Lat, alert.Lng,
+		alert.DeviceModel, alert.DeviceBrand, alert.DeviceVersion, alert.DeviceName, alert.Notes,
+	)
 
 	if err != nil {
 		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())
