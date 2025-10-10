@@ -24,7 +24,7 @@ class CardAlert extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -35,7 +35,7 @@ class CardAlert extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SelectableText(
-                  alert.name,
+                  alert.name.isEmpty ? "Unknown" : alert.name,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -61,68 +61,79 @@ class CardAlert extends StatelessWidget {
               ],
             ),
 
-            Row(
-              spacing: 8,
-              children: [
-                Icon(Icons.phone, color: Theme.of(context).colorScheme.primary),
-                SelectableText(
-                  alert.contactNo,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    letterSpacing: 0,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
+            // Row(
+            //   spacing: 8,
+            //   children: [
+            //     Icon(Icons.phone, color: Theme.of(context).colorScheme.primary),
+            //     SelectableText(
+            //       alert.contactNo,
+            //       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            //         letterSpacing: 0,
+            //         color: Theme.of(context).colorScheme.onSurface,
+            //       ),
+            //     ),
+            //   ],
+            // ),
             Row(
               spacing: 8,
               children: [
                 Icon(
                   Icons.location_on,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: alert.address.isNotEmpty
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outline,
                 ),
-                SelectableText(
-                  alert.address,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    letterSpacing: 0,
-                    color: Theme.of(context).colorScheme.onSurface,
+                if (alert.address.isNotEmpty)
+                  SelectableText(
+                    alert.address,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      letterSpacing: 0,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  )
+                else
+                  Text(
+                    "Address not provided",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      letterSpacing: 0,
+                      fontStyle: FontStyle.italic,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
-                ),
               ],
             ),
-            Row(
-              spacing: 8,
-              children: [
-                Icon(
-                  Icons.date_range_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                SelectableText(
-                  toHumanDate(alert.createdAt),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    letterSpacing: 0,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              spacing: 8,
-              children: [
-                Icon(
-                  Icons.map_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                SelectableText(
-                  "${alert.lat}, ${alert.lng}",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    letterSpacing: 0,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-
+            // Row(
+            //   spacing: 8,
+            //   children: [
+            //     Icon(
+            //       Icons.date_range_outlined,
+            //       color: Theme.of(context).colorScheme.primary,
+            //     ),
+            //     SelectableText(
+            //       toHumanDate(alert.createdAt),
+            //       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            //         letterSpacing: 0,
+            //         color: Theme.of(context).colorScheme.onSurface,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // Row(
+            //   spacing: 8,
+            //   children: [
+            //     Icon(
+            //       Icons.map_outlined,
+            //       color: Theme.of(context).colorScheme.primary,
+            //     ),
+            //     SelectableText(
+            //       "${alert.lat}, ${alert.lng}",
+            //       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            //         letterSpacing: 0,
+            //         color: Theme.of(context).colorScheme.onSurface,
+            //       ),
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 8),
 
             Row(
