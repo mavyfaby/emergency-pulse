@@ -1,16 +1,13 @@
 package main
 
 import (
-	"pulse/internal/app"
-	"pulse/internal/config"
-	"pulse/internal/db"
-	"pulse/internal/redis"
-
 	"log/slog"
-	"strconv"
-
 	"os"
 	"os/signal"
+	"pulse/internal/config"
+	"pulse/internal/db"
+	"pulse/internal/http"
+	"pulse/internal/tcp"
 	"syscall"
 
 	"github.com/joho/godotenv"
@@ -29,43 +26,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Init logger
-	config.InitLogger()
-
-	// Init the database connection
-	conn, err := db.Init()
+	// Init database
+	mariadb, err := db.NewMariaDB()
 
 	if err != nil {
 		slog.Error("[DB] " + err.Error())
 		os.Exit(1)
-		return
 	}
 
-	// Create the Redis Client
-	redisClient, err := redis.Init(
-		config.App.RedisHost+":"+strconv.Itoa(config.App.RedisPort),
-		config.App.RedisUsername,
-		config.App.RedisPassword,
-		config.App.RedisDatabase,
-	)
+	// Init Redis
+	redis, err := db.NewRedis()
 
 	if err != nil {
 		slog.Error("[Redis] " + err.Error())
 		os.Exit(1)
 	}
 
-	slog.Info("[Client] Redis client initialized and connected!")
+	// Init stop channel
+	stop := make(chan struct{})
 
-	// Start application
-	go app.Start(conn, redisClient)
-	go app.StartTCP(conn)
+	// Start services
+	go http.Start(mariadb, redis, stop)
+	go tcp.Start(mariadb, redis, stop)
 
-	// Create a channel to listen for an OS signal
-	sigterm := make(chan os.Signal, 1)
+	// Wait for SIGINT or SIGTERM
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	<-sig
 
-	// Notify the channel on SIGTERM or SIGINT
-	signal.Notify(sigterm, os.Interrupt, syscall.SIGTERM)
-
-	// Block until a signal is received
-	<-sigterm
+	close(stop)
+	slog.Info("[APP] Graceful shutdown complete!")
 }

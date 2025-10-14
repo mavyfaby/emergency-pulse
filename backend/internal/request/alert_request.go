@@ -1,7 +1,6 @@
 package request
 
-// EmergencyAlert represents minimal CBOR payload
-type EmergencyAlert struct {
+type AlertRequest struct {
 	Imei          string `cbor:"imei"`
 	Name          string `cbor:"name"`
 	Address       string `cbor:"address"`

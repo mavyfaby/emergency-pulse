@@ -11,8 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Init initializes the database connection.
-func Init() (*sqlx.DB, error) {
+func NewMariaDB() (*sqlx.DB, error) {
 	// Get necessary database connection details
 	var (
 		dbUser         = config.App.DBUser
@@ -51,8 +50,8 @@ func Init() (*sqlx.DB, error) {
 	// Set the maximum connection lifetime
 	conn.SetConnMaxLifetime(dbMaxLifetime)
 
-	// slog success DB connection
-	slog.Info("Database connection initialized!")
+	// Log success
+	slog.Info("[DB] MariaDB connection initialized!")
 
 	// Return nil
 	return conn, nil

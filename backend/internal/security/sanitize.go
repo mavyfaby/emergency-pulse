@@ -1,14 +1,11 @@
-package utils
+package security
 
 import (
 	"regexp"
 	"strings"
 )
 
-// Remove all whitespaces
 var whitespaces = regexp.MustCompile(`\s+`)
-
-// Remove all special characters except space and dash (-)
 var specialChars = regexp.MustCompile(`[^a-zA-Z0-9 -]+`)
 
 func Sanitize(input string) string {
