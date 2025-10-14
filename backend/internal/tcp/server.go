@@ -48,7 +48,7 @@ func onConnect(client net.Conn) {
 	slog.Info("[TCP] Client connected: " + client.RemoteAddr().String())
 
 	for {
-		// Reserve 4 bytes for length of the message
+		// Reserve 4 bytes to store the message length
 		lenBuf := make([]byte, 4)
 
 		_, err := io.ReadFull(client, lenBuf)
