@@ -8,6 +8,7 @@ class SettingsController extends GetxController {
   final mainScaffoldKey = GlobalKey<ScaffoldState>();
   final isTabOpen = false.obs;
   final hasVibrator = false.obs;
+  final selectedRadius = 5.obs;
 
   PackageInfo? packageInfo;
   TabController? tabController;
@@ -18,6 +19,7 @@ class SettingsController extends GetxController {
     super.onInit();
     final box = Hive.box('settings');
     isDarkMode.value = box.get('isDarkMode', defaultValue: false);
+    selectedRadius.value = box.get('selectedRadius', defaultValue: 5);
   }
 
   void setDarkMode(ThemeMode theme) {
@@ -27,6 +29,12 @@ class SettingsController extends GetxController {
     final box = Hive.box('settings');
 
     box.put('isDarkMode', isDarkMode.value);
+  }
+
+  void setSelectedRadius(int radius) {
+    selectedRadius.value = radius;
+    final box = Hive.box('settings');
+    box.put('selectedRadius', selectedRadius.value);
   }
 
   void toggleTheme() {

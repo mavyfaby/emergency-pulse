@@ -379,7 +379,7 @@ class PageAlerts extends StatelessWidget {
                                                   NetworkStatus.connected &&
                                               !infoCtrl.isSendingAlert.value
                                           ? "Send Alert"
-                                          : "-",
+                                          : "",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall

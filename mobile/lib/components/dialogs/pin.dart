@@ -86,10 +86,7 @@ class DialogPin extends StatelessWidget {
               minLines: 2,
               maxLines: 4,
               maxLength: 500,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Notes",
-              ),
+              decoration: InputDecoration(filled: true, labelText: "Notes"),
             ),
 
             if (alert.doneAt != null)

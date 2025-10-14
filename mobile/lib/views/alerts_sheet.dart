@@ -1,5 +1,7 @@
 import 'package:emergency_pulse/components/card_alert.dart';
 import 'package:emergency_pulse/controllers/location.controller.dart';
+import 'package:emergency_pulse/controllers/settings.controller.dart';
+import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +13,7 @@ class SheetAlerts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locationCtrl = Get.find<LocationController>();
+    final settingsCtrl = Get.find<SettingsController>();
 
     return SizedBox(
       height: 500,
@@ -21,8 +24,36 @@ class SheetAlerts extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Flex(
               direction: Axis.horizontal,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Obx(
+                  () => DropdownMenu<int>(
+                    initialSelection: settingsCtrl.selectedRadius.value,
+                    label: const Text("Alert Range Radius"),
+                    inputDecorationTheme: const InputDecorationTheme(
+                      border: OutlineInputBorder(),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    dropdownMenuEntries: <int>[1, 3, 5, 10, 50, 100]
+                        .map<DropdownMenuEntry<int>>((int value) {
+                          return DropdownMenuEntry<int>(
+                            value: value,
+                            label: "$value km",
+                          );
+                        })
+                        .toList(),
+                    onSelected: (int? newValue) {
+                      if (newValue != null) {
+                        settingsCtrl.setSelectedRadius(newValue);
+                      } else {
+                        showAlertDialog(
+                          "Error",
+                          "Failed to set radius! Please try again.",
+                        );
+                      }
+                    },
+                  ),
+                ),
                 Obx(
                   () => FilledButton.tonal(
                     onPressed: locationCtrl.isRefreshing.value
@@ -45,7 +76,7 @@ class SheetAlerts extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
 
           Obx(
             () => TabBar(

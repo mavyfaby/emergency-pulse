@@ -1,13 +1,9 @@
 import 'package:emergency_pulse/components/dialogs/pin.dart';
-import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
-import 'package:emergency_pulse/utils/date.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CardAlert extends StatelessWidget {
   final AlertModel alert;
@@ -16,8 +12,6 @@ class CardAlert extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locationCtrl = Get.find<LocationController>();
-
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
       elevation: 0,
@@ -35,7 +29,7 @@ class CardAlert extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SelectableText(
-                  alert.name.isEmpty ? "Unknown" : alert.name,
+                  alert.name.isEmpty ? "No name" : alert.name,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -47,15 +41,15 @@ class CardAlert extends StatelessWidget {
                   tooltip: "Highlight on map",
                   icon: const Icon(Icons.my_location_outlined),
                   onPressed: () {
-                    locationCtrl.mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(
-                        LatLng(
-                          double.parse(alert.lat),
-                          double.parse(alert.lng),
-                        ),
-                        18,
-                      ),
-                    );
+                    // locationCtrl.mapController?.animateCamera(
+                    //   CameraUpdate.newLatLngZoom(
+                    //     LatLng(
+                    //       double.parse(alert.lat),
+                    //       double.parse(alert.lng),
+                    //     ),
+                    //     18,
+                    //   ),
+                    // );
                   },
                 ),
               ],
