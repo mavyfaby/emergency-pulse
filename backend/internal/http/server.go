@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Start(mariadb *sqlx.DB, redis *redis.Client, stop <-chan struct{}) {
+func Start(modules *Modules, mariadb *sqlx.DB, redis *redis.Client, stop <-chan struct{}) {
 	e := echo.New()
 
 	e.HideBanner = true

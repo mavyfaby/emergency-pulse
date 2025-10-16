@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"pulse/internal/config"
+	"pulse/internal/http"
 	"pulse/internal/request"
 	"pulse/internal/security"
 
@@ -18,7 +19,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Start(mariadb *sqlx.DB, redis *redis.Client, stop <-chan struct{}) {
+func Start(modules *http.Modules, mariadb *sqlx.DB, redis *redis.Client, stop <-chan struct{}) {
 	server, err := net.Listen("tcp", ":"+strconv.Itoa(config.App.TcpPort))
 
 	if err != nil {
@@ -38,11 +39,11 @@ func Start(mariadb *sqlx.DB, redis *redis.Client, stop <-chan struct{}) {
 			continue
 		}
 
-		go onConnect(client)
+		go onConnect(client, modules)
 	}
 }
 
-func onConnect(client net.Conn) {
+func onConnect(client net.Conn, modules *http.Modules) {
 	defer client.Close()
 
 	slog.Info("[TCP] Client connected: " + client.RemoteAddr().String())
@@ -109,5 +110,7 @@ func onConnect(client net.Conn) {
 			slog.String("device_name", alert.DeviceName),
 			slog.String("notes", alert.Notes),
 		)
+
+		modules.AlertHandler.AlertService.CreateAlert(&alert)
 	}
 }

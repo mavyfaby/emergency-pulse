@@ -7,6 +7,9 @@ import (
 	"pulse/internal/config"
 	"pulse/internal/db"
 	"pulse/internal/http"
+	"pulse/internal/http/handler"
+	"pulse/internal/repository"
+	"pulse/internal/service"
 	"pulse/internal/tcp"
 	"syscall"
 
@@ -42,12 +45,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Init repositories
+	alertRepository := repository.NewAlertRepository(mariadb)
+
+	// Init services
+	alertService := service.NewAlertService(alertRepository)
+
+	// Init handlers
+	alertHandler := handler.NewAlertHandler(alertService)
+
+	// Create modules
+	modules := &http.Modules{
+		AlertHandler: alertHandler,
+	}
+
 	// Init stop channel
 	stop := make(chan struct{})
 
 	// Start services
-	go http.Start(mariadb, redis, stop)
-	go tcp.Start(mariadb, redis, stop)
+	go http.Start(modules, mariadb, redis, stop)
+	go tcp.Start(modules, mariadb, redis, stop)
 
 	// Wait for SIGINT or SIGTERM
 	sig := make(chan os.Signal, 1)

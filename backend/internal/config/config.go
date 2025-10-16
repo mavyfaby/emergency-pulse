@@ -10,6 +10,7 @@ type Config struct {
 	Port                  int           `env:"PORT,required"`
 	TcpPort               int           `env:"TCP_PORT,required"`
 	TZ                    string        `env:"TZ,required"`
+	AlertRetries          int           `env:"ALERT_RETRIES,required"`
 	DBHost                string        `env:"DB_HOST,required"`
 	DBPort                int           `env:"DB_PORT,required"`
 	DBUser                string        `env:"DB_USER,required"`
