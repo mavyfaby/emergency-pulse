@@ -20,7 +20,7 @@ class NetworkController extends GetxController {
   StreamSubscription<List<ConnectivityResult>>? subscription;
 
   final status = NetworkStatus.disconnected.obs;
-  final alertAddress = "13.250.43.190";
+  final alertAddress = "192.168.254.100";
   final alertPort = 62001;
   final apiBaseUrl = "https://pulse.mavyfaby.com";
   final hasNetworkConnectivity = false.obs;

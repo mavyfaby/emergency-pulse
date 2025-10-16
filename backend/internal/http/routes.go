@@ -10,6 +10,8 @@ type Modules struct {
 	AlertHandler *handler.AlertHandler
 }
 
-func NewRouter(e *echo.Echo, modules Modules) {
-	// TODO
+func NewRouter(e *echo.Echo, modules *Modules) {
+	var api = e.Group("/api")
+
+	api.GET("/alerts", modules.AlertHandler.GetAlerts)
 }

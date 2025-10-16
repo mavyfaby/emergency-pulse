@@ -21,6 +21,8 @@ func Start(modules *Modules, mariadb *sqlx.DB, redis *redis.Client, stop <-chan 
 
 	slog.Info("[HTTP] Pulse Backend Server started on port " + strconv.Itoa(config.App.Port))
 
+	NewRouter(e, modules)
+
 	if err := e.Start(":" + strconv.Itoa(config.App.Port)); err != nil {
 		slog.Error("Failed to start server: " + err.Error())
 	}

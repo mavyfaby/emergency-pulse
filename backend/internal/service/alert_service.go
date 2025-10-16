@@ -1,8 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"log/slog"
 	"pulse/internal/config"
+	"pulse/internal/dto"
 	"pulse/internal/repository"
 	"pulse/internal/request"
 	"strconv"
@@ -14,6 +16,11 @@ type AlertService struct {
 
 func NewAlertService(repo *repository.AlertRepository) *AlertService {
 	return &AlertService{Repo: repo}
+}
+
+func (s *AlertService) GetAlerts(request *request.AlertGetRequest) ([]dto.AlertDTO, error) {
+	fmt.Println(request)
+	return nil, nil
 }
 
 func (s *AlertService) CreateAlert(alert *request.AlertRequest) error {
