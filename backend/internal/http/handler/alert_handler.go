@@ -6,6 +6,7 @@ import (
 	"pulse/internal/request"
 	"pulse/internal/security"
 	"pulse/internal/service"
+	"pulse/internal/utils"
 	"pulse/pkg/response"
 	"strconv"
 	"strings"
@@ -30,6 +31,7 @@ func (h *AlertHandler) GetAlerts(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, "Missing parameters.")
 	}
 
+	// Validate center coordinates
 	centerParams := strings.Split(centerParam, ",")
 	centerParsed := []float64{}
 
@@ -47,12 +49,14 @@ func (h *AlertHandler) GetAlerts(c echo.Context) error {
 		centerParsed = append(centerParsed, v)
 	}
 
+	// Validate radius
 	radiusParsed, err := strconv.Atoi(radiusParam)
 
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid radius parameter. Format: km")
 	}
 
+	// Validate bounds coordinates
 	boundsParams := strings.Split(boundsParam, ",")
 	boundsParsed := []float64{}
 
@@ -70,9 +74,11 @@ func (h *AlertHandler) GetAlerts(c echo.Context) error {
 		boundsParsed = append(boundsParsed, v)
 	}
 
-	// TODO: Validate bounds coordinates (e.g TLX < TRY, BLX < BRX, TLY < BLY, TRY < BRY)
+	// Extract pagination parameters
+	pagination := utils.ExtractPagination(c)
 
-	alerts, err := h.AlertService.GetAlerts(&request.AlertGetRequest{
+	// Fetch alerts
+	alerts, status, count, err := h.AlertService.GetAlerts(pagination, request.AlertGetRequest{
 		Center: request.Coordinate{
 			Lat: centerParsed[0],
 			Lng: centerParsed[1],
@@ -100,8 +106,8 @@ func (h *AlertHandler) GetAlerts(c echo.Context) error {
 
 	if err != nil {
 		slog.Error("[AlertHandler.GetAlerts] Failed to get alerts: " + err.Error())
-		return response.Error(c, http.StatusInternalServerError, "Failed to get alerts.")
+		return response.Error(c, status, err.Error())
 	}
 
-	return response.SuccessData(c, http.StatusOK, "Alerts retrieved successfully!", alerts)
+	return response.SuccessData(c, status, "Alerts retrieved successfully!", alerts, &count)
 }

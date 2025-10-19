@@ -2,7 +2,7 @@ package request
 
 type AlertGetRequest struct {
 	Center Coordinate
-	Radius int
+	Radius int // In meters
 	Bounds []Coordinate
 }
 

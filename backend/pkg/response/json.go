@@ -5,14 +5,16 @@ import "github.com/labstack/echo/v4"
 type Response struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+	Total   *int   `json:"total,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }
 
-func SuccessData(c echo.Context, status int, message string, data any) error {
+func SuccessData(c echo.Context, status int, message string, data any, total *int) error {
 	return c.JSON(status, Response{
 		Success: true,
 		Message: message,
 		Data:    data,
+		Total:   total,
 	})
 }
 

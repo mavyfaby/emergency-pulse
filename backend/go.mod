@@ -10,6 +10,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/redis/go-redis/v9 v9.14.0
+	github.com/speps/go-hashids/v2 v2.0.1
 )
 
 require (

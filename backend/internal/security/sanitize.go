@@ -22,3 +22,17 @@ func SanitizeAndRemoveWhitespaces(input string) string {
 func RemoveSpecialChars(input string) string {
 	return Sanitize(specialChars.ReplaceAllString(input, ""))
 }
+
+func CamelToSnake(s string) string {
+	var result string = ""
+
+	for _, char := range s {
+		if char >= 'A' && char <= 'Z' {
+			result += "_" + string(char)
+		} else {
+			result += string(char)
+		}
+	}
+
+	return result
+}

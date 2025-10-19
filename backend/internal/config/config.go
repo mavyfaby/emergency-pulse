@@ -11,6 +11,8 @@ type Config struct {
 	TcpPort               int           `env:"TCP_PORT,required"`
 	TZ                    string        `env:"TZ,required"`
 	AlertRetries          int           `env:"ALERT_RETRIES,required"`
+	AlertMaxRadius        int           `env:"ALERT_MAX_RADIUS,required"`
+	EarthRadius           int           `env:"EARTH_RADIUS,required"`
 	DBHost                string        `env:"DB_HOST,required"`
 	DBPort                int           `env:"DB_PORT,required"`
 	DBUser                string        `env:"DB_USER,required"`
