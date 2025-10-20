@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/enums/status.dart';
@@ -18,6 +19,7 @@ class NetworkController extends GetxController {
   Socket? socket;
   Client? client;
   StreamSubscription<List<ConnectivityResult>>? subscription;
+  Battery? battery;
 
   final status = NetworkStatus.disconnected.obs;
   final alertAddress = "192.168.254.100";
@@ -29,6 +31,7 @@ class NetworkController extends GetxController {
   void onInit() {
     super.onInit();
     client = Client();
+    battery = Battery();
   }
 
   @override
@@ -139,6 +142,7 @@ class NetworkController extends GetxController {
 
   Future<void> sendAlert() async {
     if (socket == null) {
+      // TODO: Reconnect
       debugPrint('Not connected to server!');
       return;
     }
@@ -146,6 +150,8 @@ class NetworkController extends GetxController {
     final infoCtrl = Get.find<InfoController>();
 
     try {
+      infoCtrl.batteryLevel.value = (await battery!.batteryLevel).toString();
+
       debugPrint('Sending alert...');
       infoCtrl.isSendingAlert.value = true;
 

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:cbor/cbor.dart';
 import 'package:emergency_pulse/utils/security.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_device_imei/flutter_device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -22,6 +24,8 @@ class InfoController extends GetxController {
   final lat = "".obs;
   final lng = "".obs;
   final notes = "".obs;
+  final alertType = "general".obs;
+  final batteryLevel = "".obs;
   final isLocationListening = false.obs;
   final isLocationServiceEnabled = false.obs;
   final isLocationPermissionGranted = false.obs;
@@ -174,6 +178,7 @@ class InfoController extends GetxController {
   List<int> getAlertData() {
     return cbor.encode(
       CborMap({
+        CborString("alert_type"): CborString(alertType.value),
         CborString("imei"): CborString(imei.value),
         CborString("name"): CborString(name.value),
         CborString("address"): CborString(address.value),
@@ -184,6 +189,7 @@ class InfoController extends GetxController {
         CborString("device_brand"): CborString(deviceBrand.value),
         CborString("device_version"): CborString(deviceVersion.value),
         CborString("device_name"): CborString(deviceName.value),
+        CborString("device_battery_level"): CborString(batteryLevel.value),
         CborString("notes"): CborString(notes.value),
       }),
     );

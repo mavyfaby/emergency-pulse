@@ -127,42 +127,40 @@ class _PageHomeState extends State<PageHome> with WidgetsBindingObserver {
 
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Obx(
-        () => AnimatedScale(
-          scale: selectedIndex.value == 0 ? 0 : 1,
-          duration: const Duration(milliseconds: 300),
-          child: FloatingActionButton(
-            onPressed: () {
-              if (settingsCtrl.isTabOpen.value) {
-                settingsCtrl.isTabOpen.value = false;
-                settingsCtrl.bottomSheetCtrl?.close();
-                return;
-              }
+        () => selectedIndex.value == 0
+            ? SizedBox()
+            : FloatingActionButton(
+                onPressed: () {
+                  if (settingsCtrl.isTabOpen.value) {
+                    settingsCtrl.isTabOpen.value = false;
+                    settingsCtrl.bottomSheetCtrl?.close();
+                    return;
+                  }
 
-              settingsCtrl.bottomSheetCtrl = settingsCtrl
-                  .mainScaffoldKey
-                  .currentState!
-                  .showBottomSheet(
-                    (context) {
-                      return SheetAlerts(
-                        tabController: settingsCtrl.tabController!,
+                  settingsCtrl.bottomSheetCtrl = settingsCtrl
+                      .mainScaffoldKey
+                      .currentState!
+                      .showBottomSheet(
+                        (context) {
+                          return SheetAlerts(
+                            tabController: settingsCtrl.tabController!,
+                          );
+                        },
+                        enableDrag: true,
+                        showDragHandle: true,
                       );
-                    },
-                    enableDrag: true,
-                    showDragHandle: true,
-                  );
 
-              settingsCtrl.isTabOpen.value = true;
-              settingsCtrl.bottomSheetCtrl?.closed.then((_) {
-                settingsCtrl.isTabOpen.value = false;
-              });
-            },
-            child: Icon(
-              settingsCtrl.isTabOpen.value
-                  ? Icons.keyboard_arrow_down
-                  : Icons.keyboard_arrow_up,
-            ),
-          ),
-        ),
+                  settingsCtrl.isTabOpen.value = true;
+                  settingsCtrl.bottomSheetCtrl?.closed.then((_) {
+                    settingsCtrl.isTabOpen.value = false;
+                  });
+                },
+                child: Icon(
+                  settingsCtrl.isTabOpen.value
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_up,
+                ),
+              ),
       ),
 
       bottomNavigationBar: Obx(

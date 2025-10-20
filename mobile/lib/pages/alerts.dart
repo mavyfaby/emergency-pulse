@@ -12,7 +12,6 @@ import 'package:dough/dough.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
 
@@ -190,7 +189,7 @@ class PageAlerts extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 32),
+                  SizedBox(height: 24),
 
                   PressableDough(
                     child: AnimatedScale(
@@ -279,10 +278,7 @@ class PageAlerts extends StatelessWidget {
                                 );
                               }
 
-                              showAlertDialog(
-                                "Alert canceled",
-                                "You stopped the alert. Everything's okay.",
-                              );
+                              showSnackbar("Alert canceled. Nothing was sent.");
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -424,6 +420,47 @@ class PageAlerts extends StatelessWidget {
                   Column(
                     children: [
                       SizedBox(height: 24),
+
+                      DropdownMenu(
+                        width: 200,
+                        inputDecorationTheme: InputDecorationTheme(
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        dropdownMenuEntries: [
+                          DropdownMenuEntry(value: "general", label: "General"),
+                          DropdownMenuEntry(value: "medical", label: "Medical"),
+                          DropdownMenuEntry(value: "fire", label: "Fire"),
+                          DropdownMenuEntry(value: "theft", label: "Theft"),
+                          DropdownMenuEntry(
+                            value: "accident",
+                            label: "Accident",
+                          ),
+                          DropdownMenuEntry(
+                            value: "suspicious",
+                            label: "Suspicious",
+                          ),
+                          DropdownMenuEntry(
+                            value: "relief",
+                            label: "Food/Water",
+                          ),
+                          DropdownMenuEntry(value: "trapped", label: "Trapped"),
+                          DropdownMenuEntry(value: "other", label: "Other"),
+                        ],
+                        initialSelection: infoCtrl.alertType.value,
+                        label: Text("Alert Type"),
+                        onSelected: (value) {
+                          if (value == null) {
+                            infoCtrl.alertType.value = "general";
+                          } else {
+                            infoCtrl.alertType.value = value;
+                          }
+                        },
+                      ),
+
+                      SizedBox(height: 24),
+
                       Text(
                         "By sending an alert, you agree to share your location and details for emergency purposes.",
                         textAlign: TextAlign.center,
@@ -460,27 +497,28 @@ class PageAlerts extends StatelessWidget {
                               ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          showSnackbar("Long press to learn more");
-                        },
-                        onLongPress: () {
-                          launchUrl(
-                            Uri.parse(
-                              "https://pulse.mavyfaby.com/privacy-policy",
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Learn more about how your data is used",
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                      ),
+                      SizedBox(height: 32),
+
+                      // TextButton(
+                      //   onPressed: () {
+                      //     showSnackbar("Long press to learn more");
+                      //   },
+                      //   onLongPress: () {
+                      //     launchUrl(
+                      //       Uri.parse(
+                      //         "https://pulse.mavyfaby.com/privacy-policy",
+                      //       ),
+                      //     );
+                      //   },
+                      //   child: Text(
+                      //     "Learn more about how your data is used",
+                      //     style: Theme.of(context).textTheme.titleSmall
+                      //         ?.copyWith(
+                      //           fontWeight: FontWeight.w500,
+                      //           color: Theme.of(context).colorScheme.primary,
+                      //         ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],
