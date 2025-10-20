@@ -84,6 +84,7 @@ func onConnect(client net.Conn, modules *http.Modules) {
 			continue
 		}
 
+		alert.AlertType = security.SanitizeAndRemoveWhitespaces(alert.AlertType)
 		alert.Notes = security.Sanitize(alert.Notes)
 		alert.Name = security.Sanitize(alert.Name)
 		alert.Address = security.Sanitize(alert.Address)
@@ -94,10 +95,12 @@ func onConnect(client net.Conn, modules *http.Modules) {
 		alert.DeviceBrand = security.Sanitize(alert.DeviceBrand)
 		alert.DeviceVersion = security.Sanitize(alert.DeviceVersion)
 		alert.DeviceName = security.Sanitize(alert.DeviceName)
+		alert.DeviceBatteryLevel = security.SanitizeAndRemoveWhitespaces(alert.DeviceBatteryLevel)
 		alert.Notes = security.Sanitize(alert.Notes)
 
 		slog.Info(
 			"🚨 ALERT 🚨",
+			slog.String("alert_type", alert.AlertType),
 			slog.String("imei", alert.Imei),
 			slog.String("name", alert.Name),
 			slog.String("address", alert.Address),
@@ -108,6 +111,7 @@ func onConnect(client net.Conn, modules *http.Modules) {
 			slog.String("device_brand", alert.DeviceBrand),
 			slog.String("device_version", alert.DeviceVersion),
 			slog.String("device_name", alert.DeviceName),
+			slog.String("device_battery_level", alert.DeviceBatteryLevel),
 			slog.String("notes", alert.Notes),
 		)
 
