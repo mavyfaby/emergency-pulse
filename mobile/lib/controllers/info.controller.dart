@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:cbor/cbor.dart';
 import 'package:emergency_pulse/utils/security.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_device_imei/flutter_device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
