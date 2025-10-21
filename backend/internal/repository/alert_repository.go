@@ -76,6 +76,13 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 		values = append(values, "%"+*pagination.Search+"%")
 	}
 
+	if request.ExcludeResolved {
+		query += " AND aa.action != 'resolved'"
+	}
+
+	query += " HAVING distance <= ?"
+	values = append(values, request.Radius)
+
 	var countQuery = "SELECT COUNT(*) AS count FROM (" + query + ") AS t"
 	var count int
 
@@ -85,9 +92,6 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 		slog.Error("[AlertRepository.GetAlerts] [1] ERROR: " + err.Error())
 		return nil, 0, err
 	}
-
-	query += " HAVING distance <= ?"
-	values = append(values, request.Radius)
 
 	if pagination.SortBy != nil && pagination.SortDir != nil && *pagination.SortBy != "" && *pagination.SortDir != "" {
 		query += " ORDER BY a." + *pagination.SortBy + " " + *pagination.SortDir

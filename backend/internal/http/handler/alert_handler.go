@@ -23,13 +23,17 @@ func NewAlertHandler(s *service.AlertService) *AlertHandler {
 }
 
 func (h *AlertHandler) GetAlerts(c echo.Context) error {
-	centerParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("center")) // "lat,lng"
-	radiusParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("radius")) // "km"
-	boundsParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("bounds")) // "TL1,TL2,TR1,TR2,BR1,BR2,BL1,BL2"
+	centerParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("center"))                   // "lat,lng"
+	radiusParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("radius"))                   // "km"
+	boundsParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("bounds"))                   // "TL1,TL2,TR1,TR2,BR1,BR2,BL1,BL2"
+	excludeResolvedParam := security.SanitizeAndRemoveWhitespaces(c.QueryParam("excludeResolved")) // "true" for true and any for false
 
 	if centerParam == "" || radiusParam == "" || boundsParam == "" {
 		return response.Error(c, http.StatusBadRequest, "Missing parameters.")
 	}
+
+	// Will be true if excludeResolvedParam is "true" or any other value
+	excludeResolved := excludeResolvedParam == "true"
 
 	// Validate center coordinates
 	centerParams := strings.Split(centerParam, ",")
@@ -83,7 +87,8 @@ func (h *AlertHandler) GetAlerts(c echo.Context) error {
 			Lat: centerParsed[0],
 			Lng: centerParsed[1],
 		},
-		Radius: radiusParsed,
+		Radius:          radiusParsed,
+		ExcludeResolved: excludeResolved,
 		Bounds: []request.Coordinate{
 			{
 				Lat: boundsParsed[0],
