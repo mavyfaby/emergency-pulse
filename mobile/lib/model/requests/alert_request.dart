@@ -8,6 +8,7 @@ class AlertRequest {
   final String? searchBy;
   final String? sortBy;
   final String? sortDir;
+  final bool? excludeResolved;
 
   AlertRequest({
     required this.center,
@@ -19,6 +20,7 @@ class AlertRequest {
     this.searchBy,
     this.sortBy,
     this.sortDir,
+    this.excludeResolved,
   });
 
   String toQuery() {
@@ -32,6 +34,7 @@ class AlertRequest {
       "searchBy": searchBy,
       "sortBy": sortBy,
       "sortDir": sortDir,
+      "excludeResolved": excludeResolved?.toString(),
     };
 
     return query.entries

@@ -39,6 +39,7 @@ class ResponderController extends GetxController {
       center: "${infoCtrl.lat.value},${infoCtrl.lng.value}",
       radius: settingsCtrl.selectedRadius.value.toString(),
       bounds: bounds.value,
+      excludeResolved: settingsCtrl.excludeResolved.value,
     );
 
     debugPrint("Fetching alerts...");

@@ -103,6 +103,13 @@ class _PageHomeState extends State<PageHome> with WidgetsBindingObserver {
           Obx(
             () => Switch(
               value: settingsCtrl.isDarkMode.value,
+              thumbIcon: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const Icon(Icons.dark_mode);
+                }
+
+                return const Icon(Icons.light_mode);
+              }),
               onChanged: (value) {
                 settingsCtrl.setDarkMode(
                   value ? ThemeMode.dark : ThemeMode.light,

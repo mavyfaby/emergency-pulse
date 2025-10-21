@@ -9,6 +9,7 @@ class SettingsController extends GetxController {
   final isTabOpen = false.obs;
   final hasVibrator = false.obs;
   final selectedRadius = 3000.obs;
+  final excludeResolved = true.obs;
 
   PackageInfo? packageInfo;
   TabController? tabController;
@@ -20,15 +21,20 @@ class SettingsController extends GetxController {
     final box = Hive.box('settings');
     isDarkMode.value = box.get('isDarkMode', defaultValue: false);
     selectedRadius.value = box.get('selectedRadius', defaultValue: 3000);
+    excludeResolved.value = box.get('excludeResolved', defaultValue: true);
   }
 
   void setDarkMode(ThemeMode theme) {
     isDarkMode.value = theme == ThemeMode.dark;
     Get.changeThemeMode(theme);
-
     final box = Hive.box('settings');
-
     box.put('isDarkMode', isDarkMode.value);
+  }
+
+  void setExcludeResolved(bool value) {
+    excludeResolved.value = value;
+    final box = Hive.box('settings');
+    box.put('excludeResolved', excludeResolved.value);
   }
 
   void setSelectedRadius(int radius) {
