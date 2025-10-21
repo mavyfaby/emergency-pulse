@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"pulse/internal/config"
@@ -122,7 +123,14 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 	`
 
-	result, err := r.DB.Exec(query,
+	tx, err := r.DB.BeginTx(context.Background(), nil)
+
+	if err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())
+		return err
+	}
+
+	result, err := tx.Exec(query,
 		alert.AlertType,
 		alert.Imei,
 		alert.Name,
@@ -139,16 +147,71 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 	)
 
 	if err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())
+		slog.Error("[AlertRepository.CreateAlert] [2] ERROR: " + err.Error())
 		return err
 	}
 
 	if rowsAffected, err := result.RowsAffected(); err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [2] ERROR: " + err.Error())
+		slog.Error("[AlertRepository.CreateAlert] [3] ERROR: " + err.Error())
 		return err
 	} else if rowsAffected == 0 {
-		slog.Error("[AlertRepository.CreateAlert] [3] ERROR: No rows affected")
+		slog.Error("[AlertRepository.CreateAlert] [4] ERROR: No rows affected")
 		return errors.New("no rows affected")
+	}
+
+	alertId, err := result.LastInsertId()
+
+	if err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [5] ERROR: " + err.Error())
+
+		if err := tx.Rollback(); err != nil {
+			slog.Error("[AlertRepository.CreateAlert] [6] ERROR: " + err.Error())
+		}
+
+		return err
+	}
+
+	// Insert to alert_audits table
+	var auditQuery = `
+		INSERT INTO alert_audits
+			(alert_id, action, created_imei, created_at)
+		VALUES
+			(?, ?, ?, NOW())
+	`
+
+	result, err = tx.Exec(auditQuery, alertId, "created", alert.Imei)
+
+	if err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [7] ERROR: " + err.Error())
+
+		if err := tx.Rollback(); err != nil {
+			slog.Error("[AlertRepository.CreateAlert] [8] ERROR: " + err.Error())
+		}
+
+		return err
+	}
+
+	if rowsAffected, err := result.RowsAffected(); err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [9] ERROR: " + err.Error())
+
+		if err := tx.Rollback(); err != nil {
+			slog.Error("[AlertRepository.CreateAlert] [10] ERROR: " + err.Error())
+		}
+
+		return err
+	} else if rowsAffected == 0 {
+		slog.Error("[AlertRepository.CreateAlert] [11] ERROR: No rows affected")
+
+		if err := tx.Rollback(); err != nil {
+			slog.Error("[AlertRepository.CreateAlert] [12] ERROR: " + err.Error())
+		}
+
+		return errors.New("no rows affected")
+	}
+
+	if err := tx.Commit(); err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [13] ERROR: " + err.Error())
+		return err
 	}
 
 	return nil
