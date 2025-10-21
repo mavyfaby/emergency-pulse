@@ -1,5 +1,9 @@
+import 'package:emergency_pulse/model/alert_action.dart';
+import 'package:emergency_pulse/model/alert_type.dart';
+
 class AlertModel {
-  final String hashId;
+  final String alertHashId;
+  final AlertType alertType;
   final String imei;
   final String name;
   final String address;
@@ -11,11 +15,16 @@ class AlertModel {
   final String deviceBrand;
   final String deviceVersion;
   final String deviceName;
-  final String? doneAt;
+  final String deviceBatteryLevel;
+  final String distance;
+  final int responderCount;
+  final AlertAction action;
+  final String actionAt;
   final String createdAt;
 
   AlertModel({
-    required this.hashId,
+    required this.alertHashId,
+    required this.alertType,
     required this.imei,
     required this.name,
     required this.address,
@@ -27,13 +36,20 @@ class AlertModel {
     required this.deviceBrand,
     required this.deviceVersion,
     required this.deviceName,
-    this.doneAt,
+    required this.deviceBatteryLevel,
+    required this.distance,
+    required this.responderCount,
+    required this.action,
+    required this.actionAt,
     required this.createdAt,
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) {
     return AlertModel(
-      hashId: json['hashId'],
+      alertHashId: json['alertHashId'],
+      alertType: AlertType.values.firstWhere(
+        (e) => e.name == json['alertType'],
+      ),
       imei: json['imei'],
       name: json['name'],
       address: json['address'],
@@ -45,14 +61,19 @@ class AlertModel {
       deviceBrand: json['deviceBrand'],
       deviceVersion: json['deviceVersion'],
       deviceName: json['deviceName'],
-      doneAt: json['doneAt'],
+      deviceBatteryLevel: json['deviceBatteryLevel'],
+      distance: json['distance'].toString(),
+      responderCount: json['responderCount'],
+      action: AlertAction.values.firstWhere((e) => e.name == json['action']),
+      actionAt: json['actionAt'],
       createdAt: json['createdAt'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'hashId': hashId,
+      'alertHashId': alertHashId,
+      'alertType': alertType.name,
       'imei': imei,
       'name': name,
       'address': address,
@@ -64,7 +85,11 @@ class AlertModel {
       'deviceBrand': deviceBrand,
       'deviceVersion': deviceVersion,
       'deviceName': deviceName,
-      'doneAt': doneAt,
+      'deviceBatteryLevel': deviceBatteryLevel,
+      'distance': distance,
+      'responderCount': responderCount,
+      'action': action.name,
+      'actionAt': actionAt,
       'createdAt': createdAt,
     };
   }

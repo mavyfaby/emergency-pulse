@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:emergency_pulse/controllers/info.controller.dart';
-import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/controllers/network.controller.dart';
+import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/pages/home.dart' show PageHome;
 import 'package:emergency_pulse/theme.dart';
@@ -27,7 +27,7 @@ void main() async {
   final settingsCtrl = Get.put(SettingsController());
   final networkCtrl = Get.put(NetworkController());
 
-  Get.put(LocationController());
+  Get.put(ResponderController());
 
   settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
   settingsCtrl.hasVibrator.value = await Vibration.hasVibrator();

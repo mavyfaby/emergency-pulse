@@ -24,7 +24,8 @@ class NetworkController extends GetxController {
   final status = NetworkStatus.disconnected.obs;
   final alertAddress = "192.168.254.100";
   final alertPort = 62001;
-  final apiBaseUrl = "https://pulse.mavyfaby.com";
+  // final apiBaseUrl = "https://pulse.mavyfaby.com";
+  final apiBaseUrl = "http://192.168.254.100:62000";
   final hasNetworkConnectivity = false.obs;
 
   @override

@@ -1,6 +1,8 @@
 import 'package:emergency_pulse/components/card_alert.dart';
-import 'package:emergency_pulse/controllers/location.controller.dart';
+import 'package:emergency_pulse/controllers/info.controller.dart';
+import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
+import 'package:emergency_pulse/model/requests/alert_request.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,8 +14,9 @@ class SheetAlerts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locationCtrl = Get.find<LocationController>();
     final settingsCtrl = Get.find<SettingsController>();
+    final responderCtrl = Get.find<ResponderController>();
+    final infoCtrl = Get.find<InfoController>();
 
     return SizedBox(
       height: 500,
@@ -31,17 +34,25 @@ class SheetAlerts extends StatelessWidget {
                     initialSelection: settingsCtrl.selectedRadius.value,
                     label: const Text("Alert Range Radius"),
                     inputDecorationTheme: const InputDecorationTheme(
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
                       visualDensity: VisualDensity.compact,
                     ),
-                    dropdownMenuEntries: <int>[1, 3, 5, 10, 50, 100]
-                        .map<DropdownMenuEntry<int>>((int value) {
+                    dropdownMenuEntries:
+                        <int>[
+                          1000,
+                          3000,
+                          5000,
+                          10000,
+                          50000,
+                          100000,
+                        ].map<DropdownMenuEntry<int>>((int value) {
                           return DropdownMenuEntry<int>(
                             value: value,
-                            label: "$value km",
+                            label: "${(value / 1000).toInt()} km",
                           );
-                        })
-                        .toList(),
+                        }).toList(),
                     onSelected: (int? newValue) {
                       if (newValue != null) {
                         settingsCtrl.setSelectedRadius(newValue);
@@ -56,12 +67,12 @@ class SheetAlerts extends StatelessWidget {
                 ),
                 Obx(
                   () => FilledButton.tonal(
-                    onPressed: locationCtrl.isRefreshing.value
+                    onPressed: responderCtrl.isFetchingAlerts.value
                         ? null
                         : () {
-                            locationCtrl.refreshKey.currentState?.show();
+                            responderCtrl.fetchAlerts();
                           },
-                    child: locationCtrl.isRefreshing.value
+                    child: responderCtrl.isFetchingAlerts.value
                         ? SizedBox(
                             width: 14,
                             height: 14,
@@ -78,71 +89,71 @@ class SheetAlerts extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          Obx(
-            () => TabBar(
-              controller: tabController,
-              tabs: [
-                Badge.count(
-                  count: locationCtrl.alerts
-                      .where((alert) => alert.doneAt == null)
-                      .length,
-                  child: Tab(
-                    text: "Pending",
-                    icon: Icon(Icons.warning_amber_outlined),
-                    height: 56,
-                  ),
-                ),
-                Badge.count(
-                  count: locationCtrl.alerts
-                      .where((alert) => alert.doneAt != null)
-                      .length,
-                  child: Tab(
-                    text: "Done",
-                    icon: Icon(Icons.checklist_outlined),
-                    height: 56,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Obx(
+          //   () => TabBar(
+          //     controller: tabController,
+          //     tabs: [
+          //       Badge.count(
+          //         count: responderCtrl.alerts
+          //             .where((alert) => alert.doneAt == null)
+          //             .length,
+          //         child: Tab(
+          //           text: "Pending",
+          //           icon: Icon(Icons.warning_amber_outlined),
+          //           height: 56,
+          //         ),
+          //       ),
+          //       Badge.count(
+          //         count: responderCtrl.alerts
+          //             .where((alert) => alert.doneAt != null)
+          //             .length,
+          //         child: Tab(
+          //           text: "Done",
+          //           icon: Icon(Icons.checklist_outlined),
+          //           height: 56,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
-          Expanded(
-            child: TabBarView(
-              controller: tabController,
-              children: [
-                Obx(
-                  () => ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    itemCount: locationCtrl.alerts
-                        .where((alert) => alert.doneAt == null)
-                        .length,
-                    itemBuilder: (context, index) {
-                      return CardAlert(
-                        alert: locationCtrl.alerts
-                            .where((alert) => alert.doneAt == null)
-                            .elementAt(index),
-                      );
-                    },
-                  ),
-                ),
-                Obx(
-                  () => ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    itemCount: locationCtrl.alerts
-                        .where((alert) => alert.doneAt != null)
-                        .length,
-                    itemBuilder: (context, index) {
-                      return CardAlert(
-                        alert: locationCtrl.alerts
-                            .where((alert) => alert.doneAt != null)
-                            .elementAt(index),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Expanded(
+          //   child: TabBarView(
+          //     controller: tabController,
+          //     children: [
+          //       Obx(
+          //         () => ListView.builder(
+          //           padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          //           itemCount: responderCtrl.alerts
+          //               .where((alert) => alert.doneAt == null)
+          //               .length,
+          //           itemBuilder: (context, index) {
+          //             return CardAlert(
+          //               alert: responderCtrl.alerts
+          //                   .where((alert) => alert.doneAt == null)
+          //                   .elementAt(index),
+          //             );
+          //           },
+          //         ),
+          //       ),
+          //       Obx(
+          //         () => ListView.builder(
+          //           padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          //           itemCount: responderCtrl.alerts
+          //               .where((alert) => alert.doneAt != null)
+          //               .length,
+          //           itemBuilder: (context, index) {
+          //             return CardAlert(
+          //               alert: responderCtrl.alerts
+          //                   .where((alert) => alert.doneAt != null)
+          //                   .elementAt(index),
+          //             );
+          //           },
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

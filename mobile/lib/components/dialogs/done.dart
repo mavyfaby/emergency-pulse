@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:emergency_pulse/controllers/location.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
-import 'package:emergency_pulse/network/request.dart';
-import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
@@ -20,7 +17,6 @@ class DialogDone extends StatefulWidget {
 class _DialogDoneState extends State<DialogDone> {
   final Rx<File?> _imageFile = Rx<File?>(null);
   final TextEditingController _remarksController = TextEditingController();
-  final locationCtrl = Get.find<LocationController>();
   final isCompleting = false.obs;
 
   Future<void> _pickImage(ImageSource source) async {
@@ -120,31 +116,31 @@ class _DialogDoneState extends State<DialogDone> {
                 ? () async {
                     isCompleting.value = true;
 
-                    final result = await markAsDone(
-                      widget.alert.hashId,
-                      _remarksController.text.trim(),
-                      await _imageFile.value!.readAsBytes(),
-                    );
+                    // final result = await markAsDone(
+                    //   widget.alert.hashId,
+                    //   _remarksController.text.trim(),
+                    //   await _imageFile.value!.readAsBytes(),
+                    // );
 
-                    isCompleting.value = false;
+                    // isCompleting.value = false;
 
-                    if (result) {
-                      await showAlertDialog(
-                        "Success",
-                        "Alert marked as done successfully!",
-                      );
+                    // if (result) {
+                    //   await showAlertDialog(
+                    //     "Success",
+                    //     "Alert marked as done successfully!",
+                    //   );
 
-                      Get.back();
-                      Get.back();
-                      locationCtrl.refreshKey.currentState?.show();
+                    //   Get.back();
+                    //   Get.back();
+                    //   // locationCtrl.refreshKey.currentState?.show();
 
-                      return;
-                    }
+                    //   return;
+                    // }
 
-                    showAlertDialog(
-                      "Uh oh!",
-                      "Something went wrong. Please try again or contact support.",
-                    );
+                    // showAlertDialog(
+                    //   "Uh oh!",
+                    //   "Something went wrong. Please try again or contact support.",
+                    // );
                   }
                 : null,
             child: Text(
