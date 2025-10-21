@@ -29,6 +29,7 @@ class InfoController extends GetxController {
   final isLocationPermissionGranted = false.obs;
   final isSendingAlert = false.obs;
 
+  Stream<Position>? geolocatorStream;
   StreamSubscription<ServiceStatus>? serviceStatusStream;
 
   void listenToLocationService() {
@@ -105,7 +106,11 @@ class InfoController extends GetxController {
       isLocationListening.value = true;
     });
 
-    Geolocator.getPositionStream().listen((position) {
+    geolocatorStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
+    );
+
+    geolocatorStream!.listen((position) {
       lat.value = position.latitude.toString();
       lng.value = position.longitude.toString();
 

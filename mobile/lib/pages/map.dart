@@ -96,6 +96,8 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
         ),
 
         CurrentLocationLayer(
+          positionStream: const LocationMarkerDataStreamFactory()
+              .fromGeolocatorPositionStream(stream: infoCtrl.geolocatorStream),
           style: LocationMarkerStyle(
             markerSize: const Size(16, 16),
             headingSectorRadius: 75,
@@ -124,6 +126,7 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
           () => MarkerClusterLayerWidget(
             options: MarkerClusterLayerOptions(
               size: const Size(40, 40),
+              rotate: true,
               markers: responderCtrl.alerts
                   .map(
                     (alert) => Marker(
