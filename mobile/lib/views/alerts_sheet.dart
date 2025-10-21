@@ -1,9 +1,7 @@
-import 'package:emergency_pulse/components/card_alert.dart';
-import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
-import 'package:emergency_pulse/model/requests/alert_request.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,10 +14,9 @@ class SheetAlerts extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsCtrl = Get.find<SettingsController>();
     final responderCtrl = Get.find<ResponderController>();
-    final infoCtrl = Get.find<InfoController>();
 
     return SizedBox(
-      height: 500,
+      height: 400,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

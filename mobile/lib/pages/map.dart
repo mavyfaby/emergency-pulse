@@ -103,6 +103,24 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
         ),
 
         Obx(
+          () => CircleLayer(
+            circles: [
+              CircleMarker(
+                useRadiusInMeter: true,
+                point: LatLng(
+                  double.parse(infoCtrl.lat.value),
+                  double.parse(infoCtrl.lng.value),
+                ),
+                radius: settingsCtrl.selectedRadius.value.toDouble(),
+                borderColor: Colors.red.withAlpha(200),
+                borderStrokeWidth: 3,
+                color: Colors.red.withAlpha(25),
+              ),
+            ],
+          ),
+        ),
+
+        Obx(
           () => MarkerClusterLayerWidget(
             options: MarkerClusterLayerOptions(
               size: const Size(40, 40),
