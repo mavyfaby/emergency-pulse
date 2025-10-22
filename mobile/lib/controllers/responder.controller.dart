@@ -15,8 +15,10 @@ import 'package:http/http.dart' as http;
 class ResponderController extends GetxController {
   final networkCtrl = Get.find<NetworkController>();
   final bounds = "".obs;
-  final isFetchingAlerts = false.obs;
   final alerts = <AlertModel>[].obs;
+
+  final isFetchingAlerts = false.obs;
+  final isRespondingLoading = false.obs;
 
   final infoCtrl = Get.find<InfoController>();
   final settingsCtrl = Get.find<SettingsController>();
@@ -30,8 +32,6 @@ class ResponderController extends GetxController {
 
     this.bounds.value =
         "${tl.latitude},${tl.longitude},${tr.latitude},${tr.longitude},${br.latitude},${br.longitude},${bl.latitude},${bl.longitude}";
-
-    debugPrint("BOUNDS: ${this.bounds.value}");
   }
 
   Future<void> fetchAlerts() async {
@@ -81,5 +81,11 @@ class ResponderController extends GetxController {
     );
 
     return;
+  }
+
+  Future<void> respond(AlertModel alert) async {
+    isRespondingLoading.value = true;
+
+    isRespondingLoading.value = false;
   }
 }

@@ -1,3 +1,5 @@
+import 'package:emergency_pulse/components/dialogs/confirmation_respond.dart';
+import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
 import 'package:emergency_pulse/model/alert_type.dart';
 import 'package:emergency_pulse/utils/date.dart';
@@ -5,6 +7,7 @@ import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AlertMarkerSheet extends StatelessWidget {
@@ -14,6 +17,8 @@ class AlertMarkerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responderCtrl = Get.find<ResponderController>();
+
     return DraggableScrollableSheet(
       initialChildSize: 0.8,
       minChildSize: 0.2,
@@ -239,13 +244,28 @@ class AlertMarkerSheet extends StatelessWidget {
                   icon: Icon(Icons.directions_outlined),
                 ),
 
-                FilledButton.icon(
-                  onPressed: () {},
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text("Respond"),
+                Obx(
+                  () => FilledButton.icon(
+                    onPressed: responderCtrl.isRespondingLoading.value
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return RespondConfirmationDialog(alert: alert);
+                              },
+                            );
+                          },
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        responderCtrl.isRespondingLoading.value
+                            ? "Responding..."
+                            : "Respond",
+                      ),
+                    ),
+                    icon: Icon(Icons.emergency_outlined),
                   ),
-                  icon: Icon(Icons.emergency_outlined),
                 ),
               ],
             ),
@@ -332,7 +352,7 @@ class AlertMarkerSheet extends StatelessWidget {
                 ),
 
                 SelectableText(
-                  "Battery Level: ${alert.deviceBatteryLevel}% as of the time of this alert.",
+                  "${alert.deviceBatteryLevel}% as of the time of this alert.",
                 ),
               ],
             ),
