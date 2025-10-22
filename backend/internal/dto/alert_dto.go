@@ -15,6 +15,7 @@ type AlertDTO struct {
 	DeviceBatteryLevel string  `json:"deviceBatteryLevel"`
 	Lat                string  `json:"lat"`
 	Lng                string  `json:"lng"`
+	AccuracyMeters     string  `json:"accuracyMeters"`
 	Distance           float64 `json:"distance"`
 	ResponderCount     int     `json:"responderCount"`
 	Action             string  `json:"action"`

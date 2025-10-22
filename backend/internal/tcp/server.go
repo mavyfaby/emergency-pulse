@@ -91,6 +91,7 @@ func onConnect(client net.Conn, modules *http.Modules) {
 		alert.ContactNo = security.SanitizeAndRemoveWhitespaces(alert.ContactNo)
 		alert.Lat = security.SanitizeAndRemoveWhitespaces(alert.Lat)
 		alert.Lng = security.SanitizeAndRemoveWhitespaces(alert.Lng)
+		alert.AccuracyMeters = security.SanitizeAndRemoveWhitespaces(alert.AccuracyMeters)
 		alert.DeviceModel = security.Sanitize(alert.DeviceModel)
 		alert.DeviceBrand = security.Sanitize(alert.DeviceBrand)
 		alert.DeviceVersion = security.Sanitize(alert.DeviceVersion)
@@ -107,6 +108,7 @@ func onConnect(client net.Conn, modules *http.Modules) {
 			slog.String("contact_no", alert.ContactNo),
 			slog.String("lat", alert.Lat),
 			slog.String("lng", alert.Lng),
+			slog.String("accuracy_meters", alert.AccuracyMeters),
 			slog.String("device_model", alert.DeviceModel),
 			slog.String("device_brand", alert.DeviceBrand),
 			slog.String("device_version", alert.DeviceVersion),

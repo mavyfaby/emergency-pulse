@@ -5,10 +5,11 @@ type AlertRequest struct {
 	Imei               string `cbor:"imei"`
 	Name               string `cbor:"name"`
 	Address            string `cbor:"address"`
-	ContactNo          string `cbor:"contactNo"`
+	ContactNo          string `cbor:"contact_no"`
 	Notes              string `cbor:"notes"`
 	Lat                string `cbor:"lat"`
 	Lng                string `cbor:"lng"`
+	AccuracyMeters     string `cbor:"accuracy_meters"`
 	DeviceModel        string `cbor:"device_model"`
 	DeviceBrand        string `cbor:"device_brand"`
 	DeviceVersion      string `cbor:"device_version"`

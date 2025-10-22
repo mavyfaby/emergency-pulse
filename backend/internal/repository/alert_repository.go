@@ -122,9 +122,9 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 	var query = `
 		INSERT INTO alerts
-			(alert_type, imei, name, address, contact_no, lat, lng, device_model, device_brand, device_version, device_name, device_battery_level, notes, created_at)
+			(alert_type, imei, name, address, contact_no, lat, lng, accuracy_meters, device_model, device_brand, device_version, device_name, device_battery_level, notes, created_at)
 		VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 	`
 
 	tx, err := r.DB.BeginTx(context.Background(), nil)
@@ -142,6 +142,7 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 		alert.ContactNo,
 		alert.Lat,
 		alert.Lng,
+		alert.AccuracyMeters,
 		alert.DeviceModel,
 		alert.DeviceBrand,
 		alert.DeviceVersion,

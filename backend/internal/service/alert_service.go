@@ -25,7 +25,7 @@ func NewAlertService(repo *repository.AlertRepository) *AlertService {
 			"notes", "createdAt",
 		},
 		SortColumns: []string{
-			"alertType", "imei", "name", "address", "deviceModel", "deviceBrand", "deviceVersion",
+			"alertType", "imei", "name", "address", "accuracyMeters", "deviceModel", "deviceBrand", "deviceVersion",
 			"deviceName", "deviceBatteryLevel", "createdAt", "action", "action_at", "responder_count",
 		},
 	}
@@ -95,6 +95,10 @@ func (s *AlertService) GetAlerts(pagination *request.PaginationRequest, request 
 }
 
 func (s *AlertService) CreateAlert(alert *request.AlertRequest) error {
+	if alert.AccuracyMeters == "" {
+		alert.AccuracyMeters = "0"
+	}
+
 	for i := 0; i < config.App.AlertRetries; i++ {
 		err := s.Repo.CreateAlert(alert)
 

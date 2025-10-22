@@ -17,6 +17,7 @@ type AlertModel struct {
 	ContactNo          *string   `db:"contact_no"`
 	Lat                string    `db:"lat"`
 	Lng                string    `db:"lng"`
+	AccuracyMeters     string    `db:"accuracy_meters"`
 	DeviceBrand        string    `db:"device_brand"`
 	DeviceModel        string    `db:"device_model"`
 	DeviceVersion      string    `db:"device_version"`
@@ -47,6 +48,7 @@ func (a AlertModel) ToDTO() (dto.AlertDTO, error) {
 		ContactNo:          a.ContactNo,
 		Lat:                a.Lat,
 		Lng:                a.Lng,
+		AccuracyMeters:     a.AccuracyMeters,
 		Distance:           a.Distance,
 		DeviceBrand:        a.DeviceBrand,
 		DeviceModel:        a.DeviceModel,
