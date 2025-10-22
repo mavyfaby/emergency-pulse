@@ -10,6 +10,7 @@ class AlertModel {
   final String contactNo;
   final String lat;
   final String lng;
+  final String accuracyMeters;
   final String notes;
   final String deviceModel;
   final String deviceBrand;
@@ -31,6 +32,7 @@ class AlertModel {
     required this.contactNo,
     required this.lat,
     required this.lng,
+    required this.accuracyMeters,
     required this.notes,
     required this.deviceModel,
     required this.deviceBrand,
@@ -56,6 +58,7 @@ class AlertModel {
       contactNo: json['contactNo'],
       lat: json['lat'],
       lng: json['lng'],
+      accuracyMeters: json['accuracyMeters'],
       notes: json['notes'],
       deviceModel: json['deviceModel'],
       deviceBrand: json['deviceBrand'],
@@ -80,6 +83,7 @@ class AlertModel {
       'contactNo': contactNo,
       'lat': lat,
       'lng': lng,
+      'accuracyMeters': accuracyMeters,
       'notes': notes,
       'deviceModel': deviceModel,
       'deviceBrand': deviceBrand,

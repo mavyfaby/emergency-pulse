@@ -3,6 +3,7 @@ import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
+import 'package:emergency_pulse/views/alert_marker_sheet.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -135,24 +136,46 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                         double.parse(alert.lat),
                         double.parse(alert.lng),
                       ),
-                      child: Stack(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 9),
-                            child: AvatarGlow(
-                              glowRadiusFactor: 2,
-                              glowColor: Colors.red,
-                              child: SizedBox(width: 40, height: 40),
+                      child: GestureDetector(
+                        onTap: () {
+                          animatedMapController.animateTo(
+                            dest: LatLng(
+                              double.parse(alert.lat),
+                              double.parse(alert.lng),
                             ),
-                          ),
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            zoom: 18,
+                            rotation: 0,
+                          );
 
-                          Icon(
-                            Icons.location_pin,
-                            size: 40,
-                            opticalSize: 40,
-                            color: Colors.red,
-                          ),
-                        ],
+                          showModalBottomSheet(
+                            context: context,
+                            showDragHandle: true,
+                            barrierColor: Colors.black.withAlpha(75),
+                            builder: (context) =>
+                                AlertMarkerSheet(alert: alert),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 9),
+                              child: AvatarGlow(
+                                glowRadiusFactor: 2,
+                                glowColor: Colors.red,
+                                child: SizedBox(width: 40, height: 40),
+                              ),
+                            ),
+
+                            Icon(
+                              Icons.location_pin,
+                              size: 40,
+                              opticalSize: 40,
+                              color: Colors.red,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )

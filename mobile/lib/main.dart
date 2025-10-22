@@ -50,11 +50,18 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
     final networkCtrl = Get.find<NetworkController>();
     final infoCtrl = Get.find<InfoController>();
 
@@ -67,7 +74,10 @@ class MyApp extends StatelessWidget {
     infoCtrl.checkLocationService();
     infoCtrl.checkLocationPermission();
     infoCtrl.listenLocationUpdates();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final settingsCtrl = Get.find<SettingsController>();
 
     return GetMaterialApp(

@@ -21,6 +21,7 @@ class InfoController extends GetxController {
   final address = "".obs;
   final lat = "".obs;
   final lng = "".obs;
+  final accuracyMeters = "".obs;
   final notes = "".obs;
   final alertType = "general".obs;
   final batteryLevel = "".obs;
@@ -113,9 +114,11 @@ class InfoController extends GetxController {
     geolocatorStream!.listen((position) {
       lat.value = position.latitude.toString();
       lng.value = position.longitude.toString();
+      accuracyMeters.value = position.accuracy.toString();
 
       info.put("lat", lat.value);
       info.put("lng", lng.value);
+      info.put("accuracy_meters", accuracyMeters.value);
 
       isLocationListening.value = true;
     });
@@ -169,6 +172,7 @@ class InfoController extends GetxController {
     contactNo.value = info.get("contactNo") ?? "";
     lat.value = info.get("lat") ?? "";
     lng.value = info.get("lng") ?? "";
+    accuracyMeters.value = info.get("accuracyMeters") ?? "";
     notes.value = info.get("notes") ?? "";
 
     imei.value = info.get("imei") ?? "";
@@ -185,9 +189,10 @@ class InfoController extends GetxController {
         CborString("imei"): CborString(imei.value),
         CborString("name"): CborString(name.value),
         CborString("address"): CborString(address.value),
-        CborString("contactNo"): CborString(contactNo.value),
+        CborString("contact_no"): CborString(contactNo.value),
         CborString("lat"): CborString(lat.value),
         CborString("lng"): CborString(lng.value),
+        CborString("accuracy_meters"): CborString(accuracyMeters.value),
         CborString("device_model"): CborString(deviceModel.value),
         CborString("device_brand"): CborString(deviceBrand.value),
         CborString("device_version"): CborString(deviceVersion.value),
