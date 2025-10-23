@@ -11,8 +11,8 @@ import (
 
 	"pulse/internal/config"
 	"pulse/internal/http"
+	"pulse/internal/model"
 	"pulse/internal/request"
-	"pulse/internal/security"
 
 	"github.com/fxamacker/cbor/v2"
 	"github.com/jmoiron/sqlx"
@@ -32,6 +32,7 @@ func Start(modules *http.Modules, mariadb *sqlx.DB, redis *redis.Client, stop <-
 	slog.Info("[TCP] Alert is listening on port " + strconv.Itoa(config.App.TcpPort))
 
 	for {
+		// Accept the client connection
 		client, err := server.Accept()
 
 		if err != nil {
@@ -39,20 +40,25 @@ func Start(modules *http.Modules, mariadb *sqlx.DB, redis *redis.Client, stop <-
 			continue
 		}
 
+		// Handle the client connection
 		go onConnect(client, modules)
 	}
 }
 
+// / onConnect Handles the client connection
 func onConnect(client net.Conn, modules *http.Modules) {
+	// Close client connection when function ends
 	defer client.Close()
 
+	// Show client connected
 	slog.Info("[TCP] Client connected: " + client.RemoteAddr().String())
 
 	for {
 		// Reserve 4 bytes to store the message length
-		lenBuf := make([]byte, 4)
+		lengthBuffer := make([]byte, 4)
 
-		_, err := io.ReadFull(client, lenBuf)
+		// Read the length of the data from the client
+		_, err := io.ReadFull(client, lengthBuffer)
 
 		if err != nil {
 			if errors.Is(io.EOF, err) {
@@ -64,11 +70,13 @@ func onConnect(client net.Conn, modules *http.Modules) {
 			return
 		}
 
-		dataLength := binary.BigEndian.Uint32(lenBuf)
+		// Get the data length from length bytes
+		dataLength := binary.BigEndian.Uint32(lengthBuffer)
 
 		// Make a buffer memory for the data exactly the size of the data
 		data := make([]byte, dataLength)
 
+		// Read the data from the client
 		_, err = io.ReadFull(client, data)
 
 		if err != nil {
@@ -76,47 +84,43 @@ func onConnect(client net.Conn, modules *http.Modules) {
 			return
 		}
 
-		var alert request.AlertRequest
+		var env model.Envelope
 
-		// Unmarshal the data into the alert struct
-		if err := cbor.Unmarshal(data, &alert); err != nil {
-			slog.Error("Invalid CBOR: " + err.Error())
+		// Unmarshal metadata
+		if err := cbor.Unmarshal(data, &env); err != nil {
+			slog.Error("Invalid Envelope CBOR: " + err.Error())
 			continue
 		}
 
-		alert.AlertType = security.SanitizeAndRemoveWhitespaces(alert.AlertType)
-		alert.Notes = security.Sanitize(alert.Notes)
-		alert.Name = security.Sanitize(alert.Name)
-		alert.Address = security.Sanitize(alert.Address)
-		alert.ContactNo = security.SanitizeAndRemoveWhitespaces(alert.ContactNo)
-		alert.Lat = security.SanitizeAndRemoveWhitespaces(alert.Lat)
-		alert.Lng = security.SanitizeAndRemoveWhitespaces(alert.Lng)
-		alert.AccuracyMeters = security.SanitizeAndRemoveWhitespaces(alert.AccuracyMeters)
-		alert.DeviceModel = security.Sanitize(alert.DeviceModel)
-		alert.DeviceBrand = security.Sanitize(alert.DeviceBrand)
-		alert.DeviceVersion = security.Sanitize(alert.DeviceVersion)
-		alert.DeviceName = security.Sanitize(alert.DeviceName)
-		alert.DeviceBatteryLevel = security.SanitizeAndRemoveWhitespaces(alert.DeviceBatteryLevel)
-		alert.Notes = security.Sanitize(alert.Notes)
+		// Handle the envelope
+		switch env.Type {
+		case "alert":
+			// Create an alert request
+			var alert request.AlertRequest
 
-		slog.Info(
-			"🚨 ALERT 🚨",
-			slog.String("alert_type", alert.AlertType),
-			slog.String("imei", alert.Imei),
-			slog.String("name", alert.Name),
-			slog.String("address", alert.Address),
-			slog.String("contact_no", alert.ContactNo),
-			slog.String("lat", alert.Lat),
-			slog.String("lng", alert.Lng),
-			slog.String("accuracy_meters", alert.AccuracyMeters),
-			slog.String("device_model", alert.DeviceModel),
-			slog.String("device_brand", alert.DeviceBrand),
-			slog.String("device_version", alert.DeviceVersion),
-			slog.String("device_name", alert.DeviceName),
-			slog.String("device_battery_level", alert.DeviceBatteryLevel),
-			slog.String("notes", alert.Notes),
-		)
+			// Unmarshal the data into the alert struct
+			if err := cbor.Unmarshal(env.Payload, &alert); err != nil {
+				slog.Error("Invalid CBOR: " + err.Error())
+				continue
+			}
 
-		modules.AlertHandler.AlertService.CreateAlert(&alert)
+			// Handle the alert
+			HandleAlertTCP(client, modules, alert)
+		case "respond":
+			// Create a respond request
+			var respond request.RespondRequest
+
+			// Unmarshal the data into the respond struct
+			if err := cbor.Unmarshal(env.Payload, &respond); err != nil {
+				slog.Error("Invalid CBOR: " + err.Error())
+				continue
+			}
+
+			// Handle the respond
+			HandleRespondTCP(client, modules, respond)
+		default:
+			// TODO: Send an error response
+			slog.Error("Invalid Envelope Type: " + env.Type)
+		}
 	}
 }

@@ -221,3 +221,29 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 
 	return nil
 }
+
+func (r *AlertRepository) CreateRespond(alertID int, imei string) error {
+	var query = `
+		INSERT INTO alert_audits
+			(alert_id, action, responding_imei, responding_at)
+		VALUES
+			(?, ?, ?, NOW())
+	`
+
+	result, err := r.DB.Exec(query, alertID, "responding", imei)
+
+	if err != nil {
+		slog.Error("[AlertRepository.CreateRespond] [1] ERROR: " + err.Error())
+		return err
+	}
+
+	if rowsAffected, err := result.RowsAffected(); err != nil {
+		slog.Error("[AlertRepository.CreateRespond] [2] ERROR: " + err.Error())
+		return err
+	} else if rowsAffected == 0 {
+		slog.Error("[AlertRepository.CreateRespond] [3] ERROR: No rows affected")
+		return errors.New("no rows affected")
+	}
+
+	return nil
+}
