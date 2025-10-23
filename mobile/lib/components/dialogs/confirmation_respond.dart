@@ -1,4 +1,4 @@
-import 'package:emergency_pulse/controllers/responder.controller.dart';
+import 'package:emergency_pulse/controllers/network.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
 
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class RespondConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final responderCtrl = Get.find<ResponderController>();
+    final networkCtrl = Get.find<NetworkController>();
     final isAgree = false.obs;
 
     return AlertDialog(
@@ -54,7 +54,7 @@ class RespondConfirmationDialog extends StatelessWidget {
             onPressed: !isAgree.value
                 ? null
                 : () {
-                    responderCtrl.respond(alert);
+                    networkCtrl.respond(alert);
                     Navigator.pop(context);
                   },
             child: const Text("Respond"),

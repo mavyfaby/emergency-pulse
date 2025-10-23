@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
+import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/enums/status.dart';
+import 'package:emergency_pulse/model/alert.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 
 import 'package:flutter/material.dart';
@@ -27,6 +29,9 @@ class NetworkController extends GetxController {
   // final apiBaseUrl = "https://pulse.mavyfaby.com";
   final apiBaseUrl = "http://192.168.254.100:62000";
   final hasNetworkConnectivity = false.obs;
+
+  final responderCtrl = Get.find<ResponderController>();
+  final infoCtrl = Get.find<InfoController>();
 
   @override
   void onInit() {
@@ -148,8 +153,6 @@ class NetworkController extends GetxController {
       return;
     }
 
-    final infoCtrl = Get.find<InfoController>();
-
     try {
       infoCtrl.batteryLevel.value = (await battery!.batteryLevel).toString();
 
@@ -184,14 +187,59 @@ class NetworkController extends GetxController {
       );
     } catch (e) {
       debugPrint('Failed to send alert: $e');
-      infoCtrl.isSendingAlert.value = false;
-
       showAlertDialog(
         "Failed to send alert",
         "An error occurred while sending your emergency alert.",
       );
 
       // TODO: ADD RETRIES
+    } finally {
+      infoCtrl.isSendingAlert.value = false;
+    }
+  }
+
+  Future<void> respond(AlertModel alert) async {
+    if (socket == null) {
+      // TODO: Reconnect
+      debugPrint('Not connected to server!');
+      return;
+    }
+
+    try {
+      final data = infoCtrl.getRespondData(alert.alertHashId);
+      final lengthBytes = ByteData(4)..setUint32(0, data.length, Endian.big);
+      final header = lengthBytes.buffer.asUint8List(0, 4); // only 4 bytes
+
+      debugPrint(
+        "Sending ${header.length} bytes of header and ${data.length} bytes of data.",
+      );
+
+      socket?.add(header);
+      socket?.add(data);
+
+      await socket?.flush();
+
+      debugPrint('Respond sent successfully!');
+
+      responderCtrl.isRespondingLoading.value = false;
+      socket!.close();
+      socket = null;
+      status.value = NetworkStatus.disconnected;
+
+      // Reconnect
+      connect();
+      showAlertDialog(
+        "Response Confirmed",
+        "Your response has been recorded. Proceed to the location and follow safety protocols.",
+      );
+    } catch (e) {
+      debugPrint('Failed to respond: $e');
+      showAlertDialog(
+        "Failed to respond",
+        "An error occurred while responding to the emergency alert.",
+      );
+    } finally {
+      responderCtrl.isRespondingLoading.value = false;
     }
   }
 }

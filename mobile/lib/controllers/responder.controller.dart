@@ -82,10 +82,4 @@ class ResponderController extends GetxController {
 
     return;
   }
-
-  Future<void> respond(AlertModel alert) async {
-    isRespondingLoading.value = true;
-
-    isRespondingLoading.value = false;
-  }
 }

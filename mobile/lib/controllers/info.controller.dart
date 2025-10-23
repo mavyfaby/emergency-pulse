@@ -185,20 +185,35 @@ class InfoController extends GetxController {
   List<int> getAlertData() {
     return cbor.encode(
       CborMap({
-        CborString("alert_type"): CborString(alertType.value),
-        CborString("imei"): CborString(imei.value),
-        CborString("name"): CborString(name.value),
-        CborString("address"): CborString(address.value),
-        CborString("contact_no"): CborString(contactNo.value),
-        CborString("lat"): CborString(lat.value),
-        CborString("lng"): CborString(lng.value),
-        CborString("accuracy_meters"): CborString(accuracyMeters.value),
-        CborString("device_model"): CborString(deviceModel.value),
-        CborString("device_brand"): CborString(deviceBrand.value),
-        CborString("device_version"): CborString(deviceVersion.value),
-        CborString("device_name"): CborString(deviceName.value),
-        CborString("device_battery_level"): CborString(batteryLevel.value),
-        CborString("notes"): CborString(notes.value),
+        CborString("type"): CborString("alert"),
+        CborString("payload"): CborMap({
+          CborString("alert_type"): CborString(alertType.value),
+          CborString("imei"): CborString(imei.value),
+          CborString("name"): CborString(name.value),
+          CborString("address"): CborString(address.value),
+          CborString("contact_no"): CborString(contactNo.value),
+          CborString("lat"): CborString(lat.value),
+          CborString("lng"): CborString(lng.value),
+          CborString("accuracy_meters"): CborString(accuracyMeters.value),
+          CborString("device_model"): CborString(deviceModel.value),
+          CborString("device_brand"): CborString(deviceBrand.value),
+          CborString("device_version"): CborString(deviceVersion.value),
+          CborString("device_name"): CborString(deviceName.value),
+          CborString("device_battery_level"): CborString(batteryLevel.value),
+          CborString("notes"): CborString(notes.value),
+        }),
+      }),
+    );
+  }
+
+  List<int> getRespondData(String alertHashId) {
+    return cbor.encode(
+      CborMap({
+        CborString("type"): CborString("respond"),
+        CborString("payload"): CborMap({
+          CborString("alert_hash_id"): CborString(alertHashId),
+          CborString("imei"): CborString(imei.value),
+        }),
       }),
     );
   }
