@@ -206,13 +206,21 @@ class InfoController extends GetxController {
     );
   }
 
-  List<int> getRespondData(String alertHashId) {
+  List<int> getResolveData(String alertHashId) {
     return cbor.encode(
       CborMap({
-        CborString("type"): CborString("respond"),
+        CborString("type"): CborString("resolve"),
         CborString("payload"): CborMap({
           CborString("alert_hash_id"): CborString(alertHashId),
           CborString("imei"): CborString(imei.value),
+          CborString("lat"): CborString(lat.value),
+          CborString("lng"): CborString(lng.value),
+          CborString("accuracy_meters"): CborString(accuracyMeters.value),
+          CborString("device_model"): CborString(deviceModel.value),
+          CborString("device_brand"): CborString(deviceBrand.value),
+          CborString("device_version"): CborString(deviceVersion.value),
+          CborString("device_name"): CborString(deviceName.value),
+          CborString("device_battery_level"): CborString(batteryLevel.value),
         }),
       }),
     );

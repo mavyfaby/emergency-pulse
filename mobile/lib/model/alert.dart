@@ -18,9 +18,6 @@ class AlertModel {
   final String deviceName;
   final String deviceBatteryLevel;
   final String distance;
-  final int responderCount;
-  final AlertAction action;
-  final String actionAt;
   final String createdAt;
 
   AlertModel({
@@ -40,9 +37,6 @@ class AlertModel {
     required this.deviceName,
     required this.deviceBatteryLevel,
     required this.distance,
-    required this.responderCount,
-    required this.action,
-    required this.actionAt,
     required this.createdAt,
   });
 
@@ -66,9 +60,6 @@ class AlertModel {
       deviceName: json['deviceName'],
       deviceBatteryLevel: json['deviceBatteryLevel'],
       distance: json['distance'].toString(),
-      responderCount: json['responderCount'],
-      action: AlertAction.values.firstWhere((e) => e.name == json['action']),
-      actionAt: json['actionAt'],
       createdAt: json['createdAt'],
     );
   }
@@ -91,9 +82,6 @@ class AlertModel {
       'deviceName': deviceName,
       'deviceBatteryLevel': deviceBatteryLevel,
       'distance': distance,
-      'responderCount': responderCount,
-      'action': action.name,
-      'actionAt': actionAt,
       'createdAt': createdAt,
     };
   }

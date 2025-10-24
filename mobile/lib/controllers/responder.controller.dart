@@ -13,15 +13,11 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class ResponderController extends GetxController {
-  final networkCtrl = Get.find<NetworkController>();
   final bounds = "".obs;
   final alerts = <AlertModel>[].obs;
 
   final isFetchingAlerts = false.obs;
-  final isRespondingLoading = false.obs;
-
-  final infoCtrl = Get.find<InfoController>();
-  final settingsCtrl = Get.find<SettingsController>();
+  final isResolvingLoading = false.obs;
 
   void setBoundsFromMapCamera(MapCamera camera) {
     final bounds = camera.visibleBounds;
@@ -35,6 +31,10 @@ class ResponderController extends GetxController {
   }
 
   Future<void> fetchAlerts() async {
+    final networkCtrl = Get.find<NetworkController>();
+    final infoCtrl = Get.find<InfoController>();
+    final settingsCtrl = Get.find<SettingsController>();
+
     final request = AlertRequest(
       center: "${infoCtrl.lat.value},${infoCtrl.lng.value}",
       radius: settingsCtrl.selectedRadius.value.toString(),

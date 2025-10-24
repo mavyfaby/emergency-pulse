@@ -155,7 +155,6 @@ class NetworkController extends GetxController {
 
     try {
       infoCtrl.batteryLevel.value = (await battery!.batteryLevel).toString();
-
       debugPrint('Sending alert...');
       infoCtrl.isSendingAlert.value = true;
 
@@ -198,7 +197,7 @@ class NetworkController extends GetxController {
     }
   }
 
-  Future<void> respond(AlertModel alert) async {
+  Future<void> resolve(AlertModel alert) async {
     if (socket == null) {
       // TODO: Reconnect
       debugPrint('Not connected to server!');
@@ -206,7 +205,11 @@ class NetworkController extends GetxController {
     }
 
     try {
-      final data = infoCtrl.getRespondData(alert.alertHashId);
+      infoCtrl.batteryLevel.value = (await battery!.batteryLevel).toString();
+      debugPrint('Sending resolve...');
+      responderCtrl.isResolvingLoading.value = true;
+
+      final data = infoCtrl.getResolveData(alert.alertHashId);
       final lengthBytes = ByteData(4)..setUint32(0, data.length, Endian.big);
       final header = lengthBytes.buffer.asUint8List(0, 4); // only 4 bytes
 
@@ -219,27 +222,30 @@ class NetworkController extends GetxController {
 
       await socket?.flush();
 
-      debugPrint('Respond sent successfully!');
+      debugPrint('Resolve sent successfully!');
 
-      responderCtrl.isRespondingLoading.value = false;
+      responderCtrl.isResolvingLoading.value = false;
       socket!.close();
       socket = null;
       status.value = NetworkStatus.disconnected;
 
       // Reconnect
       connect();
-      showAlertDialog(
-        "Response Confirmed",
-        "Your response has been recorded. Proceed to the location and follow safety protocols.",
+
+      await showAlertDialog(
+        "Alert resolved",
+        "The alert has been successfully marked as resolved. Your account and device details have been recorded for audit purposes.",
       );
+
+      Get.back();
     } catch (e) {
-      debugPrint('Failed to respond: $e');
+      debugPrint('Failed to resolve: $e');
       showAlertDialog(
-        "Failed to respond",
-        "An error occurred while responding to the emergency alert.",
+        "Failed to resolve",
+        "An error occurred while resolving the emergency alert.",
       );
     } finally {
-      responderCtrl.isRespondingLoading.value = false;
+      responderCtrl.isResolvingLoading.value = false;
     }
   }
 }

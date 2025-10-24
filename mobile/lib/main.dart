@@ -23,11 +23,11 @@ void main() async {
   await Hive.openBox('info');
   await Hive.openBox('pings');
 
+  Get.put(ResponderController());
+
   final infoCtrl = Get.put(InfoController());
   final settingsCtrl = Get.put(SettingsController());
   final networkCtrl = Get.put(NetworkController());
-
-  Get.put(ResponderController());
 
   settingsCtrl.packageInfo = await PackageInfo.fromPlatform();
   settingsCtrl.hasVibrator.value = await Vibration.hasVibrator();

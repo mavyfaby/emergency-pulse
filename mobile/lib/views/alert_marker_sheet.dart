@@ -1,4 +1,4 @@
-import 'package:emergency_pulse/components/dialogs/confirmation_respond.dart';
+import 'package:emergency_pulse/components/dialogs/confirmation_resolve.dart';
 import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/model/alert.dart';
 import 'package:emergency_pulse/model/alert_type.dart';
@@ -246,7 +246,7 @@ class AlertMarkerSheet extends StatelessWidget {
 
                 Obx(
                   () => FilledButton.icon(
-                    onPressed: responderCtrl.isRespondingLoading.value
+                    onPressed: responderCtrl.isResolvingLoading.value
                         ? null
                         : () {
                             showDialog(
@@ -259,9 +259,9 @@ class AlertMarkerSheet extends StatelessWidget {
                     label: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       child: Text(
-                        responderCtrl.isRespondingLoading.value
-                            ? "Responding..."
-                            : "Respond",
+                        responderCtrl.isResolvingLoading.value
+                            ? "Resolving..."
+                            : "Resolve",
                       ),
                     ),
                     icon: Icon(Icons.emergency_outlined),

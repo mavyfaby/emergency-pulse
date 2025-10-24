@@ -81,14 +81,14 @@ class _PageHomeState extends State<PageHome> with WidgetsBindingObserver {
                   ]
                 : [
                     const Text('Map'),
-                    Text(
-                      "Needs internet connection",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0,
-                      ),
-                    ),
+                    // Text(
+                    //   "Needs internet connection",
+                    //   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    //     color: Theme.of(context).colorScheme.primary,
+                    //     fontWeight: FontWeight.w500,
+                    //     letterSpacing: 0,
+                    //   ),
+                    // ),
                   ],
           ),
         ),

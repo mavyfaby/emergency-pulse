@@ -2,6 +2,7 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:emergency_pulse/controllers/info.controller.dart';
 import 'package:emergency_pulse/controllers/responder.controller.dart';
 import 'package:emergency_pulse/controllers/settings.controller.dart';
+import 'package:emergency_pulse/model/alert_type.dart';
 import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:emergency_pulse/views/alert_marker_sheet.dart';
 
@@ -145,7 +146,7 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                             ),
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeInOut,
-                            zoom: 18,
+                            zoom: 19,
                             rotation: 0,
                           );
 
@@ -163,7 +164,7 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                               padding: const EdgeInsets.only(left: 9),
                               child: AvatarGlow(
                                 glowRadiusFactor: 2,
-                                glowColor: Colors.red,
+                                glowColor: alert.alertType.color,
                                 child: SizedBox(width: 40, height: 40),
                               ),
                             ),
@@ -172,7 +173,7 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                               Icons.location_pin,
                               size: 40,
                               opticalSize: 40,
-                              color: Colors.red,
+                              color: alert.alertType.color,
                             ),
                           ],
                         ),
@@ -226,7 +227,7 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                 dest: LatLng(lat, lng),
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
-                zoom: 15,
+                zoom: 17,
                 rotation: 0,
               );
             },

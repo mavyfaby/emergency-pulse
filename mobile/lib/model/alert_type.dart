@@ -61,3 +61,28 @@ extension AlertTypeIconExtension on AlertType {
     }
   }
 }
+
+extension AlertTypeColorExtension on AlertType {
+  Color get color {
+    switch (this) {
+      case AlertType.general:
+        return Colors.red;
+      case AlertType.medical:
+        return Colors.blue;
+      case AlertType.fire:
+        return Colors.orange;
+      case AlertType.theft:
+        return Colors.green;
+      case AlertType.accident:
+        return Colors.purple;
+      case AlertType.suspicious:
+        return Colors.pink;
+      case AlertType.relief:
+        return Colors.cyan;
+      case AlertType.trapped:
+        return Colors.indigo;
+      case AlertType.other:
+        return Colors.brown;
+    }
+  }
+}
