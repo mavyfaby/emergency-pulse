@@ -26,7 +26,7 @@ func NewAlertService(repo *repository.AlertRepository) *AlertService {
 		},
 		SortColumns: []string{
 			"alertType", "imei", "name", "address", "accuracyMeters", "deviceModel", "deviceBrand", "deviceVersion",
-			"deviceName", "deviceBatteryLevel", "createdAt", "action", "action_at", "responder_count",
+			"deviceName", "deviceBatteryLevel", "createdAt", "action", "action_at",
 		},
 	}
 }
@@ -120,17 +120,17 @@ func (s *AlertService) CreateAlert(alert *request.AlertRequest) error {
 	return nil
 }
 
-func (s *AlertService) CreateRespond(alertID int, imei string) error {
+func (s *AlertService) CreateResolve(alertID int, request request.ResolveRequest) error {
 	for i := 0; i < config.App.AlertRetries; i++ {
-		err := s.Repo.CreateRespond(alertID, imei)
+		err := s.Repo.CreateResolve(alertID, request)
 
 		if err != nil {
 			if i == config.App.AlertRetries-1 {
-				slog.Error("[AlertService.CreateRespond] [1] ERROR INSERTING DATA INTO DATABASE. THIS SHOULD NOT HAPPEN!")
+				slog.Error("[AlertService.CreateResolve] [1] ERROR INSERTING DATA INTO DATABASE. THIS SHOULD NOT HAPPEN!")
 				return err
 			}
 
-			slog.Error("[AlertService.CreateRespond] [2] ERROR: " + err.Error() + " (attempt " + strconv.Itoa(i+1) + "/" + strconv.Itoa(config.App.AlertRetries) + ")")
+			slog.Error("[AlertService.CreateResolve] [2] ERROR: " + err.Error() + " (attempt " + strconv.Itoa(i+1) + "/" + strconv.Itoa(config.App.AlertRetries) + ")")
 			continue
 		}
 
@@ -138,6 +138,6 @@ func (s *AlertService) CreateRespond(alertID int, imei string) error {
 	}
 
 	// TODO: Propagate to notication services
-	slog.Info("[AlertService.CreateRespond] [3] SUCCESS: Respond created successfully")
+	slog.Info("[AlertService.CreateResolve] [3] SUCCESS: Resolve created successfully")
 	return nil
 }

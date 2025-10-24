@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"errors"
 	"log/slog"
 	"pulse/internal/config"
@@ -28,19 +27,10 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 					COS(RADIANS(a.lat)) * COS(RADIANS(?)) *
 					POWER(SIN(RADIANS(? - a.lng) / 2), 2)
 				)
-			) AS distance,
-			(SELECT COUNT(*) FROM alert_audits aa3 WHERE aa3.alert_id = a.alert_id AND aa3.action = 'responding') AS responder_count,
-			aa.action,
-			CAST(
-				GREATEST(
-					COALESCE(aa.created_at, '1000-01-01 00:00:00'),
-					COALESCE(aa.responding_at, '1000-01-01 00:00:00'),
-					COALESCE(aa.resolved_at, '1000-01-01 00:00:00')
-				) AS DATETIME
-			) AS action_at
+			) AS distance
 		FROM
 			alerts a
-		INNER JOIN
+		LEFT JOIN
 			alert_audits aa ON aa.alert_audit_id = (
 				SELECT
 					aa2.alert_audit_id
@@ -49,14 +39,9 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 				WHERE
 					aa2.alert_id = a.alert_id
 				ORDER BY
-					GREATEST(
-						COALESCE(aa2.created_at, '1000-01-01 00:00:00'),
-						COALESCE(aa2.responding_at, '1000-01-01 00:00:00'),
-						COALESCE(aa2.resolved_at, '1000-01-01 00:00:00')
-					)
-				DESC LIMIT 1
+					aa2.created_at DESC
+				LIMIT 1
 			)
-
 		WHERE a.lat BETWEEN ? AND ? AND a.lng BETWEEN ? AND ?
 	`
 
@@ -77,7 +62,7 @@ func (r *AlertRepository) GetAlertsFromResponder(pagination *request.PaginationR
 	}
 
 	if request.ExcludeResolved {
-		query += " AND aa.action != 'resolved'"
+		query += " AND aa.alert_audit_id IS NULL"
 	}
 
 	query += " HAVING distance <= ?"
@@ -127,14 +112,7 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 	`
 
-	tx, err := r.DB.BeginTx(context.Background(), nil)
-
-	if err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())
-		return err
-	}
-
-	result, err := tx.Exec(query,
+	result, err := r.DB.Exec(query,
 		alert.AlertType,
 		alert.Imei,
 		alert.Name,
@@ -152,96 +130,52 @@ func (r *AlertRepository) CreateAlert(alert *request.AlertRequest) error {
 	)
 
 	if err != nil {
+		slog.Error("[AlertRepository.CreateAlert] [1] ERROR: " + err.Error())
+		return err
+	}
+
+	if rowsAffected, err := result.RowsAffected(); err != nil {
 		slog.Error("[AlertRepository.CreateAlert] [2] ERROR: " + err.Error())
 		return err
-	}
-
-	if rowsAffected, err := result.RowsAffected(); err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [3] ERROR: " + err.Error())
-		return err
 	} else if rowsAffected == 0 {
-		slog.Error("[AlertRepository.CreateAlert] [4] ERROR: No rows affected")
+		slog.Error("[AlertRepository.CreateAlert] [3] ERROR: No rows affected")
 		return errors.New("no rows affected")
-	}
-
-	alertId, err := result.LastInsertId()
-
-	if err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [5] ERROR: " + err.Error())
-
-		if err := tx.Rollback(); err != nil {
-			slog.Error("[AlertRepository.CreateAlert] [6] ERROR: " + err.Error())
-		}
-
-		return err
-	}
-
-	// Insert to alert_audits table
-	var auditQuery = `
-		INSERT INTO alert_audits
-			(alert_id, action, created_imei, created_at)
-		VALUES
-			(?, ?, ?, NOW())
-	`
-
-	result, err = tx.Exec(auditQuery, alertId, "created", alert.Imei)
-
-	if err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [7] ERROR: " + err.Error())
-
-		if err := tx.Rollback(); err != nil {
-			slog.Error("[AlertRepository.CreateAlert] [8] ERROR: " + err.Error())
-		}
-
-		return err
-	}
-
-	if rowsAffected, err := result.RowsAffected(); err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [9] ERROR: " + err.Error())
-
-		if err := tx.Rollback(); err != nil {
-			slog.Error("[AlertRepository.CreateAlert] [10] ERROR: " + err.Error())
-		}
-
-		return err
-	} else if rowsAffected == 0 {
-		slog.Error("[AlertRepository.CreateAlert] [11] ERROR: No rows affected")
-
-		if err := tx.Rollback(); err != nil {
-			slog.Error("[AlertRepository.CreateAlert] [12] ERROR: " + err.Error())
-		}
-
-		return errors.New("no rows affected")
-	}
-
-	if err := tx.Commit(); err != nil {
-		slog.Error("[AlertRepository.CreateAlert] [13] ERROR: " + err.Error())
-		return err
 	}
 
 	return nil
 }
 
-func (r *AlertRepository) CreateRespond(alertID int, imei string) error {
+func (r *AlertRepository) CreateResolve(alertID int, request request.ResolveRequest) error {
 	var query = `
 		INSERT INTO alert_audits
-			(alert_id, action, responding_imei, responding_at)
+			(alert_id, imei, lat, lng, accuracy_meters, device_model, device_brand, device_version, device_name, device_battery_level, created_at)
 		VALUES
-			(?, ?, ?, NOW())
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 	`
 
-	result, err := r.DB.Exec(query, alertID, "responding", imei)
+	result, err := r.DB.Exec(query,
+		alertID,
+		request.Imei,
+		request.Lat,
+		request.Lng,
+		request.AccuracyMeters,
+		request.DeviceModel,
+		request.DeviceBrand,
+		request.DeviceVersion,
+		request.DeviceName,
+		request.DeviceBatteryLevel,
+	)
 
 	if err != nil {
-		slog.Error("[AlertRepository.CreateRespond] [1] ERROR: " + err.Error())
+		slog.Error("[AlertRepository.CreateResolve] [1] ERROR: " + err.Error())
 		return err
 	}
 
 	if rowsAffected, err := result.RowsAffected(); err != nil {
-		slog.Error("[AlertRepository.CreateRespond] [2] ERROR: " + err.Error())
+		slog.Error("[AlertRepository.CreateResolve] [2] ERROR: " + err.Error())
 		return err
 	} else if rowsAffected == 0 {
-		slog.Error("[AlertRepository.CreateRespond] [3] ERROR: No rows affected")
+		slog.Error("[AlertRepository.CreateResolve] [3] ERROR: No rows affected")
 		return errors.New("no rows affected")
 	}
 

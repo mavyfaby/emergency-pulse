@@ -25,7 +25,6 @@ type AlertModel struct {
 	DeviceBatteryLevel string    `db:"device_battery_level"`
 	Notes              *string   `db:"notes"`
 	Distance           float64   `db:"distance"`
-	ResponderCount     int       `db:"responder_count"`
 	Action             string    `db:"action"`
 	ActionAt           time.Time `db:"action_at"`
 	CreatedAt          time.Time `db:"created_at"`
@@ -56,7 +55,6 @@ func (a AlertModel) ToDTO() (dto.AlertDTO, error) {
 		DeviceName:         a.DeviceName,
 		DeviceBatteryLevel: a.DeviceBatteryLevel,
 		Notes:              a.Notes,
-		ResponderCount:     a.ResponderCount,
 		Action:             a.Action,
 		ActionAt:           utils.TimeToISO8601(a.ActionAt),
 		CreatedAt:          utils.TimeToISO8601(a.CreatedAt),

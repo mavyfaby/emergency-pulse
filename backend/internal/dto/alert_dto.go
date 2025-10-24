@@ -17,7 +17,6 @@ type AlertDTO struct {
 	Lng                string  `json:"lng"`
 	AccuracyMeters     string  `json:"accuracyMeters"`
 	Distance           float64 `json:"distance"`
-	ResponderCount     int     `json:"responderCount"`
 	Action             string  `json:"action"`
 	ActionAt           string  `json:"actionAt"`
 	CreatedAt          string  `json:"createdAt"`

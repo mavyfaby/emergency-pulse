@@ -106,18 +106,18 @@ func onConnect(client net.Conn, modules *http.Modules) {
 
 			// Handle the alert
 			HandleAlertTCP(client, modules, alert)
-		case "respond":
-			// Create a respond request
-			var respond request.RespondRequest
+		case "resolve":
+			// Create a resolve request
+			var resolve request.ResolveRequest
 
-			// Unmarshal the data into the respond struct
-			if err := cbor.Unmarshal(env.Payload, &respond); err != nil {
+			// Unmarshal the data into the resolve struct
+			if err := cbor.Unmarshal(env.Payload, &resolve); err != nil {
 				slog.Error("Invalid CBOR: " + err.Error())
 				continue
 			}
 
-			// Handle the respond
-			HandleRespondTCP(client, modules, respond)
+			// Handle the resolve
+			HandleResolveTCP(client, modules, resolve)
 		default:
 			// TODO: Send an error response
 			slog.Error("Invalid Envelope Type: " + env.Type)
