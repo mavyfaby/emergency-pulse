@@ -1,4 +1,3 @@
-import 'package:emergency_pulse/model/alert_action.dart';
 import 'package:emergency_pulse/model/alert_type.dart';
 
 class AlertModel {

@@ -21,7 +21,8 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('settings');
   await Hive.openBox('info');
-  await Hive.openBox('pings');
+  await Hive.openBox('cacheAlerts');
+  await Hive.openBox('cacheResolves');
 
   Get.put(ResponderController());
 

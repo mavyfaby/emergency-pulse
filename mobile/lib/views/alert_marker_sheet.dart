@@ -246,7 +246,12 @@ class AlertMarkerSheet extends StatelessWidget {
 
                 Obx(
                   () => FilledButton.icon(
-                    onPressed: responderCtrl.isResolvingLoading.value
+                    onPressed:
+                        responderCtrl.cachedResolved.containsKey(
+                          alert.alertHashId,
+                        )
+                        ? null
+                        : responderCtrl.isResolvingLoading.value
                         ? null
                         : () {
                             showDialog(
@@ -259,7 +264,11 @@ class AlertMarkerSheet extends StatelessWidget {
                     label: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       child: Text(
-                        responderCtrl.isResolvingLoading.value
+                        responderCtrl.cachedResolved.containsKey(
+                              alert.alertHashId,
+                            )
+                            ? "Resolved"
+                            : responderCtrl.isResolvingLoading.value
                             ? "Resolving..."
                             : "Resolve",
                       ),

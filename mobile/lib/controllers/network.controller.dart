@@ -237,6 +237,7 @@ class NetworkController extends GetxController {
         "The alert has been successfully marked as resolved. Your account and device details have been recorded for audit purposes.",
       );
 
+      responderCtrl.addResolveCache(alert);
       Get.back();
     } catch (e) {
       debugPrint('Failed to resolve: $e');

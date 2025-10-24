@@ -12,6 +12,7 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:latlong2/latlong.dart';
@@ -163,17 +164,39 @@ class _PageMapState extends State<PageMap> with TickerProviderStateMixin {
                             Padding(
                               padding: const EdgeInsets.only(left: 9),
                               child: AvatarGlow(
+                                animate:
+                                    !((responderCtrl.isLoadedFromCache.value &&
+                                            responderCtrl.cachedAlerts
+                                                .containsKey(
+                                                  alert.alertHashId,
+                                                )) ||
+                                        responderCtrl.cachedResolved
+                                            .containsKey(alert.alertHashId)),
                                 glowRadiusFactor: 2,
                                 glowColor: alert.alertType.color,
                                 child: SizedBox(width: 40, height: 40),
                               ),
                             ),
 
-                            Icon(
-                              Icons.location_pin,
-                              size: 40,
-                              opticalSize: 40,
-                              color: alert.alertType.color,
+                            Badge(
+                              label: Text("Resolved"),
+                              isLabelVisible: responderCtrl.cachedResolved
+                                  .containsKey(alert.alertHashId),
+                              child: Icon(
+                                Icons.location_pin,
+                                size: 40,
+                                opticalSize: 40,
+                                color:
+                                    (responderCtrl.isLoadedFromCache.value &&
+                                            responderCtrl.cachedAlerts
+                                                .containsKey(
+                                                  alert.alertHashId,
+                                                )) ||
+                                        responderCtrl.cachedResolved
+                                            .containsKey(alert.alertHashId)
+                                    ? alert.alertType.color.withAlpha(100)
+                                    : alert.alertType.color,
+                              ),
                             ),
                           ],
                         ),

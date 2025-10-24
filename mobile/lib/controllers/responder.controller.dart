@@ -10,12 +10,16 @@ import 'package:emergency_pulse/utils/dialog.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ResponderController extends GetxController {
   final bounds = "".obs;
   final alerts = <AlertModel>[].obs;
+  final cachedAlerts = <String, AlertModel>{}.obs;
+  final cachedResolved = <String, AlertModel>{}.obs;
 
+  final isLoadedFromCache = false.obs;
   final isFetchingAlerts = false.obs;
   final isResolvingLoading = false.obs;
 
@@ -28,6 +32,12 @@ class ResponderController extends GetxController {
 
     this.bounds.value =
         "${tl.latitude},${tl.longitude},${tr.latitude},${tr.longitude},${br.latitude},${br.longitude},${bl.latitude},${bl.longitude}";
+  }
+
+  void addResolveCache(AlertModel alert) {
+    final box = Hive.box('cacheResolves');
+    box.put(alert.alertHashId, alert);
+    cachedResolved[alert.alertHashId] = alert;
   }
 
   Future<void> fetchAlerts() async {
@@ -58,9 +68,19 @@ class ResponderController extends GetxController {
           },
         );
 
+    final cachedAlertsBox = Hive.box('cacheAlerts');
+    final cachedResolvedBox = Hive.box('cacheResolves');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final alerts = data['data'] as List;
+
+      // Save to cache
+      cachedAlertsBox.clear();
+
+      for (final alert in alerts) {
+        cachedAlertsBox.put(alert['alertHashId'], alert);
+      }
 
       this.alerts.value = alerts
           .map((alert) => AlertModel.fromJson(alert))
@@ -77,8 +97,24 @@ class ResponderController extends GetxController {
 
     showAlertDialog(
       "Failed to fetch alerts",
-      "Can't acquire alerts. Please tap refresh alerts again.",
+      "Can't acquire alerts. Loading alerts from cache...",
     );
+
+    final alerts = cachedAlertsBox.values
+        .toList()
+        .map((alert) => AlertModel.fromJson(alert))
+        .toList();
+
+    this.alerts.value = alerts;
+    isLoadedFromCache.value = true;
+
+    final resolvedBox = cachedResolvedBox.values.toList().map(
+      (alert) => AlertModel.fromJson(alert),
+    );
+
+    for (final alert in resolvedBox) {
+      cachedResolved[alert.alertHashId] = alert;
+    }
 
     return;
   }
